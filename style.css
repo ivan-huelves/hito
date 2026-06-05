@@ -9,18 +9,14 @@
     --line: rgba(0, 0, 0, 0.18);
     --line-strong: #000000;
     --panel: #EDEDED;
-    --accent: #000000;
     --muted: rgba(0, 0, 0, 0.55);
-    --sidebar-w: 340px;
-    --radius: 0px; /* estética de bordes rectos; sube a 4px si prefieres esquinas suaves */
+    --sidebar-w: 400px;
+    --radius: 0px; /* bordes rectos; sube a 4px si prefieres esquinas suaves */
 }
 
 * { box-sizing: border-box; }
 
-html, body {
-    margin: 0;
-    height: 100%;
-}
+html, body { margin: 0; height: 100%; }
 
 body {
     font-family: 'Space Mono', monospace;
@@ -42,27 +38,27 @@ body {
     padding: 24px 22px;
     display: flex;
     flex-direction: column;
-    gap: 22px;
+    gap: 20px;
     overflow-y: auto;
     border-right: 2px solid var(--line-strong);
     z-index: 1000;
+    /* Ocultar la barra de scroll manteniendo el desplazamiento */
+    scrollbar-width: none;          /* Firefox */
+    -ms-overflow-style: none;       /* IE/Edge antiguo */
 }
+#sidebar::-webkit-scrollbar { display: none; } /* Chrome/Safari */
 
-.brand {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-}
+.brand { display: flex; flex-direction: column; gap: 4px; }
 .brand h1 {
     margin: 0;
-    font-size: 1.6rem;
+    font-size: 1.7rem;
     font-weight: 700;
     letter-spacing: -0.5px;
 }
 .brand .tagline {
-    font-size: 0.8rem;
+    font-size: 0.82rem;
     color: var(--muted);
-    text-transform: lowercase;
+    line-height: 1.4;
 }
 
 .field-label {
@@ -102,23 +98,27 @@ select { cursor: pointer; }
     display: flex;
     align-items: center;
     justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 8px;
     margin-bottom: 8px;
 }
 .filter-head strong {
     font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 1px;
+    white-space: nowrap;
 }
 .filter-toggle-all {
     background: none;
     border: none;
     font-family: inherit;
-    font-size: 0.72rem;
+    font-size: 0.7rem;
     text-decoration: underline;
     cursor: pointer;
     color: var(--fg);
-    padding: 2px 4px;
+    padding: 2px 0;
     width: auto;
+    white-space: nowrap;
     transition: opacity 0.2s ease;
 }
 .filter-toggle-all:hover { opacity: 0.55; }
@@ -153,7 +153,6 @@ button {
     transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
-/* Acción principal: relleno negro */
 .btn-primary {
     background: var(--fg);
     color: var(--bg);
@@ -161,17 +160,15 @@ button {
 }
 .btn-primary:hover { opacity: 0.78; }
 
-/* Acción secundaria: contorno, se rellena al pasar el ratón */
 .btn-outline {
     background: transparent;
     color: var(--fg);
     border: 1.5px solid var(--fg);
+    font-size: 0.85rem;
+    white-space: nowrap;
 }
 .btn-outline:hover { background: var(--fg); color: var(--bg); }
-.btn-outline:disabled {
-    opacity: 0.35;
-    cursor: not-allowed;
-}
+.btn-outline:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn-outline:disabled:hover { background: transparent; color: var(--fg); }
 
 /* ----------------------------- Estado ----------------------------- */
@@ -182,11 +179,13 @@ button {
     text-align: center;
     border-radius: var(--radius);
 }
-
-.summary {
-    font-size: 0.78rem;
-    line-height: 1.5;
+.status:empty { display: none; } /* se oculta cuando no hay mensaje */
+.status.error {
+    border-style: solid;
+    font-weight: 700;
 }
+
+.summary { font-size: 0.78rem; line-height: 1.5; }
 .summary ul { list-style: none; margin: 6px 0 0; padding: 0; }
 .summary li {
     display: flex;
@@ -202,16 +201,33 @@ button {
     border-top: 1px solid var(--line);
     font-size: 0.78rem;
     color: var(--muted);
-    line-height: 1.5;
+    line-height: 1.6;
 }
-.sidebar-footer a {
+.footer-meta { margin-bottom: 8px; }
+.sidebar-footer a,
+.linklike {
     color: var(--fg);
     text-decoration: none;
     border-bottom: 1.5px solid var(--fg);
     padding-bottom: 1px;
     transition: opacity 0.3s ease;
 }
-.sidebar-footer a:hover { opacity: 0.55; }
+.sidebar-footer a:hover,
+.linklike:hover { opacity: 0.55; }
+
+/* Botón que se comporta como enlace */
+.linklike {
+    background: none;
+    border-top: none;
+    border-left: none;
+    border-right: none;
+    font-family: inherit;
+    font-size: inherit;
+    font-weight: 400;
+    width: auto;
+    padding: 0 0 1px;
+    cursor: pointer;
+}
 
 /* ----------------------------- Mapa ----------------------------- */
 #map {
@@ -220,7 +236,6 @@ button {
     background: var(--bg);
 }
 
-/* Marcadores personalizados */
 .custom-icon div {
     font-size: 15px;
     background: var(--bg);
@@ -234,7 +249,6 @@ button {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
 }
 
-/* Popups en clave monoespaciada */
 .leaflet-popup-content-wrapper {
     border-radius: var(--radius);
     border: 1.5px solid var(--fg);
@@ -266,6 +280,59 @@ button {
     font-weight: 700;
 }
 .popup-btn-del:hover { background: var(--fg); color: var(--bg); }
+
+/* Controles de Leaflet en clave monoespaciada */
+.leaflet-control-layers,
+.leaflet-bar {
+    border: 1.5px solid var(--fg) !important;
+    border-radius: var(--radius) !important;
+    box-shadow: none !important;
+}
+.leaflet-control-layers-list { font-family: 'Space Mono', monospace; font-size: 0.8rem; }
+
+/* ----------------------------- Ventana de info ----------------------------- */
+.modal-backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 2000;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+}
+.modal-backdrop.show { display: flex; }
+.modal {
+    position: relative;
+    background: var(--bg);
+    border: 2px solid var(--fg);
+    border-radius: var(--radius);
+    max-width: 480px;
+    width: 100%;
+    padding: 28px;
+    font-size: 0.9rem;
+}
+.modal h2 { margin: 0 0 14px; font-size: 1.3rem; }
+.modal p { margin: 0 0 12px; }
+.modal .disclaimer {
+    border-left: 3px solid var(--fg);
+    padding-left: 12px;
+    color: var(--fg);
+}
+.modal a { color: var(--fg); }
+.modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: auto;
+    padding: 4px 9px;
+    font-size: 1rem;
+    background: transparent;
+    border: 1.5px solid var(--fg);
+    color: var(--fg);
+    border-radius: var(--radius);
+}
+.modal-close:hover { background: var(--fg); color: var(--bg); }
 
 /* ----------------------------- Toggle móvil ----------------------------- */
 #menuToggle {
@@ -310,12 +377,11 @@ button {
 @media (max-width: 768px) {
     body { display: block; }
 
-    #map {
-        width: 100vw;
-        height: 100vh;
-    }
+    #map { width: 100vw; height: 100vh; }
 
     #menuToggle { display: flex; align-items: center; justify-content: center; }
+    /* El botón hamburguesa desaparece mientras el menú está abierto */
+    body.menu-open #menuToggle { display: none; }
 
     #sidebar {
         position: fixed;

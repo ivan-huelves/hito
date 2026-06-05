@@ -1,7 +1,5 @@
 /* ============================================================
    Hito — GPX + puntos de interés
-   Lógica: carga de ruta GPX, búsqueda de POIs vía Overpass
-   y exportación de un GPX enriquecido con waypoints.
    ============================================================ */
 
 // ---------------------- Configuración ----------------------
@@ -11,8 +9,6 @@ const OVERPASS_SERVERS = [
     "https://lz4.overpass-api.de/api/interpreter"
 ];
 
-// Definición de filtros en un solo lugar (id del checkbox -> consulta + estilo).
-// Para añadir una nueva categoría basta con sumar una entrada aquí y un <label> en el HTML.
 const FILTERS = {
     "chk-aguabeber": {
         emoji: "💧", tipo: "Agua", sym: "Drinking Water",
@@ -72,7 +68,6 @@ const FILTERS = {
     }
 };
 
-// Clasificación de un POI a partir de sus etiquetas OSM.
 function clasificarPOI(tags) {
     if (tags.amenity === "drinking_water" || tags.natural === "spring" || tags.man_made === "water_tap")
         return FILTERS["chk-aguabeber"];
@@ -116,18 +111,34 @@ let trackLayer = null;
 let baseFileName = "ruta";
 
 // ---------------------- Mapa ----------------------
-const map = L.map('map').setView([40.41, -3.70], 6);
-L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap',
-    maxZoom: 19
-}).addTo(map);
+const map = L.map('map', { zoomControl: false }).setView([40.41, -3.70], 6);
 
-// ---------------------- Utilidades ----------------------
+// Capas base: mapa y satélite
+const capaMapa = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap', maxZoom: 19
+});
+const capaSatelite = L.tileLayer(
+    'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+        attribution: 'Imágenes © Esri, Maxar, Earthstar Geographics', maxZoom: 19
+    });
+capaMapa.addTo(map);
+
+// Zoom arriba a la derecha (para no chocar con el botón del menú en móvil)
+L.control.zoom({ position: 'topright' }).addTo(map);
+// Selector de capa abajo a la derecha
+L.control.layers({ "Mapa": capaMapa, "Satélite": capaSatelite }, null, { position: 'bottomright' }).addTo(map);
+// Atribución abajo a la izquierda
+map.attributionControl.setPosition('bottomleft');
+
+// ---------------------- Utilidades de interfaz ----------------------
 const statusBox = document.getElementById('status');
 const summaryBox = document.getElementById('summary');
 const btnDownload = document.getElementById('btnDownload');
 
-function setStatus(msg) { statusBox.innerText = msg; }
+function setStatus(msg, isError = false) {
+    statusBox.textContent = msg || "";
+    statusBox.classList.toggle('error', !!isError && !!msg);
+}
 
 function escapeXml(str) {
     return String(str)
@@ -138,7 +149,6 @@ function escapeXml(str) {
         .replace(/'/g, "&apos;");
 }
 
-// Distancia Haversine en metros.
 function getDistance(lat1, lon1, lat2, lon2) {
     const R = 6371e3;
     const rad = Math.PI / 180;
@@ -150,7 +160,6 @@ function getDistance(lat1, lon1, lat2, lon2) {
 }
 
 // ---------------------- Persistencia de filtros ----------------------
-// Recuerda los filtros y el radio entre visitas (degrada sin error si no hay localStorage).
 function guardarPreferencias() {
     try {
         const estado = {};
@@ -186,7 +195,6 @@ document.getElementById('gpxFile').addEventListener('change', function (e) {
         originalXml = event.target.result;
         const xml = new DOMParser().parseFromString(originalXml, "text/xml");
 
-        // Acepta tanto tracks (trkpt) como rutas (rtept).
         const trk = Array.from(xml.getElementsByTagName("trkpt"));
         const rte = Array.from(xml.getElementsByTagName("rtept"));
         const pts = trk.length ? trk : rte;
@@ -196,7 +204,7 @@ document.getElementById('gpxFile').addEventListener('change', function (e) {
             .filter(p => !isNaN(p[0]) && !isNaN(p[1]));
 
         if (!routePoints.length) {
-            setStatus("No se encontraron puntos de ruta en el archivo.");
+            setStatus("No se encontraron puntos de ruta en el archivo.", true);
             return;
         }
 
@@ -211,10 +219,12 @@ document.getElementById('gpxFile').addEventListener('change', function (e) {
 
 // ---------------------- Búsqueda de POIs ----------------------
 async function buscarPOIs() {
-    if (!routePoints.length) { alert("Sube primero un archivo GPX."); return; }
+    if (!routePoints.length) {
+        setStatus("Primero sube un archivo GPX de ruta.", true);
+        return;
+    }
     const radius = parseInt(document.getElementById('radius').value, 10);
 
-    // Bounding box de la ruta con un pequeño margen.
     let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
     routePoints.forEach(([lat, lon]) => {
         if (lat < minLat) minLat = lat;
@@ -225,19 +235,21 @@ async function buscarPOIs() {
     const margin = (radius / 111000) + 0.01;
     const bbox = `${minLat - margin},${minLon - margin},${maxLat + margin},${maxLon + margin}`;
 
-    // Construye la consulta solo con los filtros activos.
     let filtros = "";
     Object.keys(FILTERS).forEach(id => {
         const el = document.getElementById(id);
         if (el && el.checked) filtros += FILTERS[id].query(bbox);
     });
-    if (!filtros) { setStatus("Selecciona al menos un filtro."); return; }
+    if (!filtros) {
+        setStatus("Selecciona al menos un filtro.", true);
+        return;
+    }
 
     const query = `[out:json][timeout:90];(${filtros});out center;`;
 
     let data = null;
     for (const url of OVERPASS_SERVERS) {
-        setStatus("Consultando base de datos…");
+        setStatus("Escaneando la ruta… (puede tardar unos segundos)");
         try {
             const res = await fetch(url, {
                 method: "POST",
@@ -248,7 +260,10 @@ async function buscarPOIs() {
         } catch (err) { console.log("Fallo en", url); }
     }
 
-    if (!data || !data.elements) { setStatus("Error: servidores saturados, prueba de nuevo."); return; }
+    if (!data || !data.elements) {
+        setStatus("Error: los servidores están saturados, prueba de nuevo.", true);
+        return;
+    }
 
     setStatus("Filtrando resultados…");
     pois.forEach(p => map.removeLayer(p.marker));
@@ -260,9 +275,8 @@ async function buscarPOIs() {
         const lon = el.lon || (el.center && el.center.lon);
         if (!lat || !lon) return;
 
-        // ¿Está dentro del radio de algún punto de la ruta?
         let isNear = false;
-        const step = Math.max(1, Math.floor(routePoints.length / 400)); // muestreo adaptativo
+        const step = Math.max(1, Math.floor(routePoints.length / 400));
         for (let i = 0; i < routePoints.length; i += step) {
             if (getDistance(lat, lon, routePoints[i][0], routePoints[i][1]) <= radius) {
                 isNear = true;
@@ -295,20 +309,16 @@ async function buscarPOIs() {
         pois.push({ id: el.id, lat, lon, nombre, sym: cat.sym, emoji: cat.emoji, marker });
     });
 
-    // Resumen por categoría.
     const filas = Object.entries(conteo)
         .sort((a, b) => b[1] - a[1])
         .map(([tipo, n]) => `<li><span>${tipo}</span><span>${n}</span></li>`)
         .join("");
-    summaryBox.innerHTML = filas
-        ? `<ul>${filas}</ul>`
-        : "";
+    summaryBox.innerHTML = filas ? `<ul>${filas}</ul>` : "";
 
     setStatus(`Encontrados ${pois.length} puntos.`);
     btnDownload.disabled = pois.length === 0;
 }
 
-// Eliminar un POI desde el popup (global, lo invoca el HTML del popup).
 window.borrarPOI = function (id) {
     const idx = pois.findIndex(p => p.id === id);
     if (idx > -1) {
@@ -321,7 +331,10 @@ window.borrarPOI = function (id) {
 
 // ---------------------- Exportar GPX ----------------------
 function descargarGPX() {
-    if (!pois.length) { alert("No hay puntos que exportar."); return; }
+    if (!pois.length) {
+        setStatus("No hay puntos que exportar.", true);
+        return;
+    }
     const waypoints = pois.map(p =>
         `<wpt lat="${p.lat}" lon="${p.lon}"><name>${escapeXml(p.nombre)}</name><sym>${p.sym}</sym></wpt>`
     ).join("");
@@ -339,11 +352,10 @@ function descargarGPX() {
     URL.revokeObjectURL(a.href);
 }
 
-// ---------------------- Interacción de la interfaz ----------------------
+// ---------------------- Interacción ----------------------
 document.getElementById('btnSearch').addEventListener('click', buscarPOIs);
 btnDownload.addEventListener('click', descargarGPX);
 
-// Marcar / desmarcar todos los filtros.
 document.getElementById('toggleAll').addEventListener('click', () => {
     const ids = Object.keys(FILTERS);
     const algunoApagado = ids.some(id => !document.getElementById(id).checked);
@@ -351,12 +363,17 @@ document.getElementById('toggleAll').addEventListener('click', () => {
     guardarPreferencias();
 });
 
-// Guardar preferencias al cambiar cualquier filtro o el radio.
 Object.keys(FILTERS).forEach(id => {
     const el = document.getElementById(id);
     if (el) el.addEventListener('change', guardarPreferencias);
 });
 document.getElementById('radius').addEventListener('change', guardarPreferencias);
+
+// ---------------------- Ventana de info ----------------------
+const infoModal = document.getElementById('infoModal');
+document.getElementById('infoBtn').addEventListener('click', () => infoModal.classList.add('show'));
+document.getElementById('infoClose').addEventListener('click', () => infoModal.classList.remove('show'));
+infoModal.addEventListener('click', e => { if (e.target === infoModal) infoModal.classList.remove('show'); });
 
 // ---------------------- Menú móvil (drawer) ----------------------
 const sidebar = document.getElementById('sidebar');
@@ -365,18 +382,19 @@ const backdrop = document.getElementById('backdrop');
 function abrirMenu() {
     sidebar.classList.add('open');
     backdrop.classList.add('show');
+    document.body.classList.add('menu-open'); // oculta el botón hamburguesa
 }
 function cerrarMenu() {
     sidebar.classList.remove('open');
     backdrop.classList.remove('show');
-    setTimeout(() => map.invalidateSize(), 300); // recalcula el mapa al cerrar
+    document.body.classList.remove('menu-open');
+    setTimeout(() => map.invalidateSize(), 300);
 }
 
 document.getElementById('menuToggle').addEventListener('click', abrirMenu);
 document.getElementById('sidebarClose').addEventListener('click', cerrarMenu);
 backdrop.addEventListener('click', cerrarMenu);
 
-// Mantener el mapa correctamente dimensionado al rotar / redimensionar.
 window.addEventListener('resize', () => map.invalidateSize());
 
 // ---------------------- Inicio ----------------------

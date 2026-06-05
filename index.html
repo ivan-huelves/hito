@@ -27,11 +27,11 @@
 
         <div class="brand">
             <h1>Hito</h1>
-            <span class="tagline">gpx + puntos de interés</span>
+            <span class="tagline">Añade a tu ruta rápidamente puntos de interés</span>
         </div>
 
         <div>
-            <label class="field-label" for="gpxFile">1 · Archivo de ruta</label>
+            <label class="field-label" for="gpxFile">1 · Subir archivo GPX ruta</label>
             <input type="file" id="gpxFile" accept=".gpx">
         </div>
 
@@ -49,11 +49,11 @@
         <div class="filter-section">
             <div class="filter-head">
                 <strong>3 · Filtros</strong>
-                <button id="toggleAll" class="filter-toggle-all">marcar / quitar todo</button>
+                <button id="toggleAll" class="filter-toggle-all">todos / ninguno</button>
             </div>
             <label><input type="checkbox" id="chk-aguabeber" checked> 💧 Agua potable</label>
             <label><input type="checkbox" id="chk-servicios"> 🚽 Aseos / Baños</label>
-            <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas / Baños públicos</label>
+            <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas públicas</label>
             <label><input type="checkbox" id="chk-termas"> ♨️ Termas naturales</label>
             <label><input type="checkbox" id="chk-camping"> ⛺ Camping</label>
             <label><input type="checkbox" id="chk-refugio" checked> 🛖 Refugios y cabañas</label>
@@ -68,18 +68,39 @@
         </div>
 
         <button id="btnSearch" class="btn-primary">Escanear ruta</button>
-        <div id="status" class="status">Esperando archivo…</div>
+        <div id="status" class="status"></div>
         <div id="summary" class="summary"></div>
         <button id="btnDownload" class="btn-outline" disabled>Descargar GPX con puntos de interés</button>
 
         <footer class="sidebar-footer">
+            <div class="footer-meta">
+                Datos de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+                · <button id="infoBtn" class="linklike">cómo funciona</button>
+            </div>
             © 2026 Iván Huelves Illas —
             <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a> —
-            <a href="https://www.linkedin.com/in/TU-USUARIO" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://www.linkedin.com/in/ivan-huelves-illas/" target="_blank" rel="noopener">LinkedIn</a>
         </footer>
     </aside>
 
     <div id="map"></div>
+
+    <!-- Ventana de información -->
+    <div id="infoModal" class="modal-backdrop">
+        <div class="modal" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
+            <button id="infoClose" class="modal-close" aria-label="Cerrar">✕</button>
+            <h2 id="infoTitle">¿Qué es Hito?</h2>
+            <p>Hito añade puntos de interés (agua, refugios, comida, miradores, cajeros…)
+               a tu ruta. Sube un archivo GPX, elige qué buscar y un radio alrededor del
+               recorrido, y la app coloca esos puntos sobre el mapa. Después puedes descargar
+               un GPX enriquecido con los waypoints para tu GPS o dispositivo Garmin.</p>
+            <p>Los datos provienen de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+               (consultados a través de la API pública de Overpass). Son colaborativos, por lo
+               que pueden estar incompletos o desactualizados.</p>
+            <p class="disclaimer">Úsalos como referencia y verifica siempre los puntos críticos
+               (sobre todo agua y refugios) antes de depender de ellos en ruta.</p>
+        </div>
+    </div>
 
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
