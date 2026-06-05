@@ -399,3 +399,8 @@ window.addEventListener('resize', () => map.invalidateSize());
 
 // ---------------------- Inicio ----------------------
 cargarPreferencias();
+
+// En móvil, abre el menú al cargar para que se vea la app y se pueda subir el GPX.
+if (window.matchMedia('(max-width: 768px)').matches) {
+    abrirMenu();
+}

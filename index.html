@@ -13,8 +13,8 @@
     <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
-    <!-- Estilos propios -->
-    <link rel="stylesheet" href="style.css" />
+    <!-- Estilos propios (sube el ?v= cada vez que edites para evitar la caché) -->
+    <link rel="stylesheet" href="style.css?v=4" />
 </head>
 <body>
 
@@ -23,27 +23,30 @@
     <div id="backdrop"></div>
 
     <aside id="sidebar">
-        <button id="sidebarClose" class="sidebar-close" aria-label="Cerrar menú">✕</button>
 
-        <div class="brand">
-            <h1>Hito</h1>
-            <span class="tagline">Añade a tu ruta rápidamente puntos de interés</span>
-        </div>
+        <div class="sidebar-top">
+            <button id="sidebarClose" class="sidebar-close" aria-label="Cerrar menú">✕</button>
 
-        <div>
-            <label class="field-label" for="gpxFile">1 · Subir archivo GPX ruta</label>
-            <input type="file" id="gpxFile" accept=".gpx">
-        </div>
+            <div class="brand">
+                <h1>Hito</h1>
+                <span class="tagline">Añade a tu ruta rápidamente puntos de interés</span>
+            </div>
 
-        <div>
-            <label class="field-label" for="radius">2 · Radio de búsqueda</label>
-            <select id="radius">
-                <option value="3000">3 km</option>
-                <option value="5000" selected>5 km</option>
-                <option value="10000">10 km</option>
-                <option value="15000">15 km</option>
-                <option value="20000">20 km</option>
-            </select>
+            <div>
+                <label class="field-label" for="gpxFile">1 · Subir archivo GPX ruta</label>
+                <input type="file" id="gpxFile" accept=".gpx">
+            </div>
+
+            <div>
+                <label class="field-label" for="radius">2 · Radio de búsqueda</label>
+                <select id="radius">
+                    <option value="3000">3 km</option>
+                    <option value="5000" selected>5 km</option>
+                    <option value="10000">10 km</option>
+                    <option value="15000">15 km</option>
+                    <option value="20000">20 km</option>
+                </select>
+            </div>
         </div>
 
         <div class="filter-section">
@@ -51,36 +54,41 @@
                 <strong>3 · Filtros</strong>
                 <button id="toggleAll" class="filter-toggle-all">todos / ninguno</button>
             </div>
-            <label><input type="checkbox" id="chk-aguabeber" checked> 💧 Agua potable</label>
-            <label><input type="checkbox" id="chk-servicios"> 🚽 Aseos / Baños</label>
-            <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas públicas</label>
-            <label><input type="checkbox" id="chk-termas"> ♨️ Termas naturales</label>
-            <label><input type="checkbox" id="chk-camping"> ⛺ Camping</label>
-            <label><input type="checkbox" id="chk-refugio" checked> 🛖 Refugios y cabañas</label>
-            <label><input type="checkbox" id="chk-comida" checked> 🛒 Comida y súper</label>
-            <label><input type="checkbox" id="chk-picnic"> 🥪 Picnic y cocinas</label>
-            <label><input type="checkbox" id="chk-cascada"> 🌊 Cascadas</label>
-            <label><input type="checkbox" id="chk-belleza"> 📸 Vistas y cimas</label>
-            <label><input type="checkbox" id="chk-cultura"> 🏛️ Cultura y castillos</label>
-            <label><input type="checkbox" id="chk-biblioteca"> 📚 Bibliotecas</label>
-            <label><input type="checkbox" id="chk-bicicleta"> 🚲 Taller de bicis</label>
-            <label><input type="checkbox" id="chk-atm"> 🏧 Cajeros ATM</label>
+            <div class="filter-list">
+                <label><input type="checkbox" id="chk-aguabeber" checked> 💧 Agua potable</label>
+                <label><input type="checkbox" id="chk-servicios"> 🚽 Aseos / Baños</label>
+                <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas públicas</label>
+                <label><input type="checkbox" id="chk-termas"> ♨️ Termas naturales</label>
+                <label><input type="checkbox" id="chk-camping"> ⛺ Camping</label>
+                <label><input type="checkbox" id="chk-refugio" checked> 🛖 Refugios y cabañas</label>
+                <label><input type="checkbox" id="chk-comida" checked> 🛒 Comida y súper</label>
+                <label><input type="checkbox" id="chk-picnic"> 🥪 Picnic y cocinas</label>
+                <label><input type="checkbox" id="chk-cascada"> 🌊 Cascadas</label>
+                <label><input type="checkbox" id="chk-belleza"> 📸 Vistas y cimas</label>
+                <label><input type="checkbox" id="chk-cultura"> 🏛️ Cultura y castillos</label>
+                <label><input type="checkbox" id="chk-biblioteca"> 📚 Bibliotecas</label>
+                <label><input type="checkbox" id="chk-bicicleta"> 🚲 Taller de bicis</label>
+                <label><input type="checkbox" id="chk-atm"> 🏧 Cajeros ATM</label>
+            </div>
         </div>
 
-        <button id="btnSearch" class="btn-primary">Escanear ruta</button>
-        <div id="status" class="status"></div>
-        <div id="summary" class="summary"></div>
-        <button id="btnDownload" class="btn-outline" disabled>Descargar GPX con puntos de interés</button>
+        <div class="sidebar-bottom">
+            <button id="btnSearch" class="btn-primary">Escanear ruta</button>
+            <div id="status" class="status"></div>
+            <div id="summary" class="summary"></div>
+            <button id="btnDownload" class="btn-outline" disabled>Descargar GPX con puntos de interés</button>
 
-        <footer class="sidebar-footer">
-            <div class="footer-meta">
-                Datos de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
-                · <button id="infoBtn" class="linklike">cómo funciona</button>
-            </div>
-            © 2026 Iván Huelves Illas —
-            <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a> —
-            <a href="https://www.linkedin.com/in/ivan-huelves-illas/" target="_blank" rel="noopener">LinkedIn</a>
-        </footer>
+            <footer class="sidebar-footer">
+                <div class="footer-meta">
+                    Datos de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+                    · <button id="infoBtn" class="linklike">cómo funciona</button>
+                </div>
+                © 2026 Iván Huelves Illas —
+                <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a> —
+                <a href="https://www.linkedin.com/in/ivan-huelves-illas/" target="_blank" rel="noopener">LinkedIn</a>
+            </footer>
+        </div>
+
     </aside>
 
     <div id="map"></div>
@@ -104,7 +112,7 @@
 
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    <!-- Lógica propia -->
-    <script src="script.js"></script>
+    <!-- Lógica propia (sube el ?v= cada vez que edites para evitar la caché) -->
+    <script src="script.js?v=4"></script>
 </body>
 </html>
