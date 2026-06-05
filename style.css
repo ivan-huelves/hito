@@ -1,0 +1,334 @@
+/* ============================================================
+   Hito — GPX + puntos de interés
+   Estilo: minimalismo monoespaciado (blanco y negro)
+   ============================================================ */
+
+:root {
+    --bg: #EDEDED;
+    --fg: #000000;
+    --line: rgba(0, 0, 0, 0.18);
+    --line-strong: #000000;
+    --panel: #EDEDED;
+    --accent: #000000;
+    --muted: rgba(0, 0, 0, 0.55);
+    --sidebar-w: 340px;
+    --radius: 0px; /* estética de bordes rectos; sube a 4px si prefieres esquinas suaves */
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+    margin: 0;
+    height: 100%;
+}
+
+body {
+    font-family: 'Space Mono', monospace;
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.6;
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    overflow: hidden;
+}
+
+/* ----------------------------- Sidebar ----------------------------- */
+#sidebar {
+    width: var(--sidebar-w);
+    flex-shrink: 0;
+    background: var(--panel);
+    color: var(--fg);
+    padding: 24px 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    overflow-y: auto;
+    border-right: 2px solid var(--line-strong);
+    z-index: 1000;
+}
+
+.brand {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.brand h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+}
+.brand .tagline {
+    font-size: 0.8rem;
+    color: var(--muted);
+    text-transform: lowercase;
+}
+
+.field-label {
+    display: block;
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 8px;
+    color: var(--muted);
+}
+
+/* ----------------------------- Inputs ----------------------------- */
+select,
+input[type="file"] {
+    width: 100%;
+    padding: 10px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    color: var(--fg);
+    background: transparent;
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--radius);
+}
+input[type="file"] { padding: 8px; cursor: pointer; }
+select { cursor: pointer; }
+
+/* ----------------------------- Filtros ----------------------------- */
+.filter-section {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    border: 1.5px solid var(--line-strong);
+    border-radius: var(--radius);
+    padding: 14px;
+}
+.filter-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+.filter-head strong {
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+.filter-toggle-all {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.72rem;
+    text-decoration: underline;
+    cursor: pointer;
+    color: var(--fg);
+    padding: 2px 4px;
+    width: auto;
+    transition: opacity 0.2s ease;
+}
+.filter-toggle-all:hover { opacity: 0.55; }
+
+.filter-section label {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    font-size: 0.85rem;
+    padding: 4px 2px;
+    cursor: pointer;
+    border-radius: var(--radius);
+}
+.filter-section label:hover { background: rgba(0, 0, 0, 0.05); }
+.filter-section input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: var(--fg);
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+/* ----------------------------- Botones ----------------------------- */
+button {
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 700;
+    width: 100%;
+    padding: 13px;
+    cursor: pointer;
+    border-radius: var(--radius);
+    transition: opacity 0.2s ease, background 0.2s ease, color 0.2s ease;
+}
+
+/* Acción principal: relleno negro */
+.btn-primary {
+    background: var(--fg);
+    color: var(--bg);
+    border: 1.5px solid var(--fg);
+}
+.btn-primary:hover { opacity: 0.78; }
+
+/* Acción secundaria: contorno, se rellena al pasar el ratón */
+.btn-outline {
+    background: transparent;
+    color: var(--fg);
+    border: 1.5px solid var(--fg);
+}
+.btn-outline:hover { background: var(--fg); color: var(--bg); }
+.btn-outline:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+}
+.btn-outline:disabled:hover { background: transparent; color: var(--fg); }
+
+/* ----------------------------- Estado ----------------------------- */
+.status {
+    font-size: 0.82rem;
+    border: 1.5px dashed var(--line-strong);
+    padding: 12px;
+    text-align: center;
+    border-radius: var(--radius);
+}
+
+.summary {
+    font-size: 0.78rem;
+    line-height: 1.5;
+}
+.summary ul { list-style: none; margin: 6px 0 0; padding: 0; }
+.summary li {
+    display: flex;
+    justify-content: space-between;
+    border-bottom: 1px dotted var(--line);
+    padding: 3px 0;
+}
+
+/* ----------------------------- Footer ----------------------------- */
+.sidebar-footer {
+    margin-top: auto;
+    padding-top: 18px;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+    color: var(--muted);
+    line-height: 1.5;
+}
+.sidebar-footer a {
+    color: var(--fg);
+    text-decoration: none;
+    border-bottom: 1.5px solid var(--fg);
+    padding-bottom: 1px;
+    transition: opacity 0.3s ease;
+}
+.sidebar-footer a:hover { opacity: 0.55; }
+
+/* ----------------------------- Mapa ----------------------------- */
+#map {
+    flex-grow: 1;
+    height: 100vh;
+    background: var(--bg);
+}
+
+/* Marcadores personalizados */
+.custom-icon div {
+    font-size: 15px;
+    background: var(--bg);
+    border: 2px solid var(--fg);
+    border-radius: 50%;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.35);
+}
+
+/* Popups en clave monoespaciada */
+.leaflet-popup-content-wrapper {
+    border-radius: var(--radius);
+    border: 1.5px solid var(--fg);
+}
+.leaflet-popup-content { font-family: 'Space Mono', monospace; }
+.popup-title { font-size: 0.95rem; }
+.popup-type { color: var(--muted); font-size: 0.78rem; }
+.popup-link {
+    display: inline-block;
+    margin-top: 8px;
+    color: var(--fg);
+    text-decoration: none;
+    border-bottom: 1.5px solid var(--fg);
+    font-weight: 700;
+    font-size: 0.82rem;
+}
+.popup-link:hover { opacity: 0.55; }
+.popup-btn-del {
+    margin-top: 10px;
+    width: 100%;
+    background: transparent;
+    color: var(--fg);
+    padding: 7px;
+    border: 1.5px solid var(--fg);
+    border-radius: var(--radius);
+    cursor: pointer;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+.popup-btn-del:hover { background: var(--fg); color: var(--bg); }
+
+/* ----------------------------- Toggle móvil ----------------------------- */
+#menuToggle {
+    display: none; /* oculto en escritorio */
+    position: fixed;
+    top: 14px;
+    left: 14px;
+    z-index: 1200;
+    width: 46px;
+    height: 46px;
+    padding: 0;
+    font-size: 1.3rem;
+    background: var(--bg);
+    color: var(--fg);
+    border: 1.5px solid var(--fg);
+    border-radius: var(--radius);
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+#backdrop {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 999;
+}
+#backdrop.show { display: block; }
+
+.sidebar-close {
+    display: none; /* solo visible en móvil */
+    align-self: flex-end;
+    width: auto;
+    padding: 4px 10px;
+    font-size: 1.1rem;
+    background: transparent;
+    border: 1.5px solid var(--fg);
+    color: var(--fg);
+    border-radius: var(--radius);
+}
+
+/* ----------------------------- Responsive ----------------------------- */
+@media (max-width: 768px) {
+    body { display: block; }
+
+    #map {
+        width: 100vw;
+        height: 100vh;
+    }
+
+    #menuToggle { display: flex; align-items: center; justify-content: center; }
+
+    #sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100vh;
+        width: 86vw;
+        max-width: 360px;
+        transform: translateX(-100%);
+        transition: transform 0.28s ease;
+        box-shadow: 4px 0 18px rgba(0, 0, 0, 0.25);
+    }
+    #sidebar.open { transform: translateX(0); }
+
+    .sidebar-close { display: block; }
+}

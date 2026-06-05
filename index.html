@@ -2,262 +2,88 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>GPX Pro Explorer - Sidebar Edition</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hito — GPX + puntos de interés</title>
+
+    <!-- Tipografía -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+    <!-- Leaflet -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <style>
-        body { font-family: sans-serif; margin: 0; display: flex; flex-direction: row; height: 100vh; overflow: hidden; }
-        #sidebar { 
-            width: 360px; background: #2c3e50; color: white; padding: 20px; 
-            display: flex; flex-direction: column; gap: 15px; overflow-y: auto; 
-            box-sizing: border-box; box-shadow: 2px 0 5px rgba(0,0,0,0.3); z-index: 1000;
-        }
-        #map { flex-grow: 1; height: 100vh; }
-        h2 { margin: 0 0 10px 0; font-size: 1.2em; color: #ecf0f1; border-bottom: 1px solid #34495e; padding-bottom: 10px;}
-        .status { font-size: 0.85em; background: #34495e; padding: 10px; border-radius: 4px; text-align: center;}
-        button { cursor: pointer; padding: 12px; border: none; border-radius: 4px; font-weight: bold; font-size: 1em; width: 100%; transition: background 0.2s;}
-        .btn-search { background: #3498db; color: white; margin-top: 10px; }
-        .btn-search:hover { background: #2980b9; }
-        .btn-download { background: #27ae60; color: white; }
-        .filter-section { display: flex; flex-direction: column; gap: 6px; background: #34495e; padding: 12px; border-radius: 4px; }
-        .filter-section label { cursor: pointer; font-size: 0.85em; display: flex; align-items: center; gap: 8px;}
-        select, input[type="file"] { width: 100%; padding: 8px; box-sizing: border-box; background: #ecf0f1; border: none; border-radius: 4px; color: #333;}
-        .custom-icon div { 
-            font-size: 16px; background: white; border: 2px solid #2c3e50; 
-            border-radius: 50%; width: 28px; height: 28px; 
-            display: flex; justify-content: center; align-items: center; 
-            box-shadow: 0 3px 6px rgba(0,0,0,0.4); 
-        }
-        .popup-link { display: inline-block; margin-top: 8px; color: #2980b9; text-decoration: none; font-weight: bold; }
-        .popup-btn-desc { margin-top: 10px; width: 100%; background: #e74c3c; color: white; padding: 6px; border: none; border-radius: 4px; cursor: pointer;}
-    </style>
+
+    <!-- Estilos propios -->
+    <link rel="stylesheet" href="style.css" />
 </head>
 <body>
 
-<div id="sidebar">
-    <h2>GPX Explorer Pro</h2>
-    <div>
-        <label style="font-size: 0.9em; margin-bottom:5px; display:block;">1. Archivo de ruta</label>
-        <input type="file" id="gpxFile" accept=".gpx">
-    </div>
-    <div>
-        <label style="font-size: 0.9em; margin-bottom:5px; display:block;">2. Radio de búsqueda</label>
-        <select id="radius">
-            <option value="5000">5 km</option>
-            <option value="10000">10 km</option>
-        </select>
-    </div>
+    <!-- Botón para abrir el menú en móvil -->
+    <button id="menuToggle" aria-label="Abrir menú">☰</button>
+    <div id="backdrop"></div>
 
-    <div class="filter-section">
-        <strong style="font-size: 0.9em; color: #bdc3c7;">3. Filtros Disponibles</strong>
-        <label><input type="checkbox" id="chk-aguabeber" checked> 💧 Agua potable</label>
-        <label><input type="checkbox" id="chk-servicios"> 🚽 Aseos / Baños</label>
-        <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas / Baños públicos</label>
-        <label><input type="checkbox" id="chk-termas"> ♨️ Termas naturales</label>
-        <label><input type="checkbox" id="chk-camping"> ⛺ Camping</label>
-        <label><input type="checkbox" id="chk-refugio" checked> 🛖 Refugios y Cabañas</label>
-        <label><input type="checkbox" id="chk-comida" checked> 🛒 Comida y Súper</label>
-        <label><input type="checkbox" id="chk-picnic"> 🥪 Picnic y Cocinas</label>
-        <label><input type="checkbox" id="chk-cascada"> 🌊 Cascadas</label>
-        <label><input type="checkbox" id="chk-belleza"> 📸 Vistas y Cimas</label>
-        <label><input type="checkbox" id="chk-cultura"> 🏛️ Cultura y Castillos</label>
-        <label><input type="checkbox" id="chk-biblioteca"> 📚 Bibliotecas</label>
-        <label><input type="checkbox" id="chk-bicicleta"> 🚲 Taller de bicis</label>
-        <label><input type="checkbox" id="chk-atm"> 🏧 Cajeros ATM</label>
-    </div>
+    <aside id="sidebar">
+        <button id="sidebarClose" class="sidebar-close" aria-label="Cerrar menú">✕</button>
 
-    <button class="btn-search" onclick="buscarPOIs()">Escanear Ruta</button>
-    <div id="status" class="status">Esperando archivo...</div>
-    <button class="btn-download" onclick="descargarGPX()">Descargar Garmin</button>
-</div>
+        <div class="brand">
+            <h1>Hito</h1>
+            <span class="tagline">gpx + puntos de interés</span>
+        </div>
 
-<div id="map"></div>
+        <div>
+            <label class="field-label" for="gpxFile">1 · Archivo de ruta</label>
+            <input type="file" id="gpxFile" accept=".gpx">
+        </div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <div>
+            <label class="field-label" for="radius">2 · Radio de búsqueda</label>
+            <select id="radius">
+                <option value="3000">3 km</option>
+                <option value="5000" selected>5 km</option>
+                <option value="10000">10 km</option>
+                <option value="15000">15 km</option>
+                <option value="20000">20 km</option>
+            </select>
+        </div>
 
-<script>
-    const map = L.map('map').setView([40.41, -3.70], 6);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png').addTo(map);
+        <div class="filter-section">
+            <div class="filter-head">
+                <strong>3 · Filtros</strong>
+                <button id="toggleAll" class="filter-toggle-all">marcar / quitar todo</button>
+            </div>
+            <label><input type="checkbox" id="chk-aguabeber" checked> 💧 Agua potable</label>
+            <label><input type="checkbox" id="chk-servicios"> 🚽 Aseos / Baños</label>
+            <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas / Baños públicos</label>
+            <label><input type="checkbox" id="chk-termas"> ♨️ Termas naturales</label>
+            <label><input type="checkbox" id="chk-camping"> ⛺ Camping</label>
+            <label><input type="checkbox" id="chk-refugio" checked> 🛖 Refugios y cabañas</label>
+            <label><input type="checkbox" id="chk-comida" checked> 🛒 Comida y súper</label>
+            <label><input type="checkbox" id="chk-picnic"> 🥪 Picnic y cocinas</label>
+            <label><input type="checkbox" id="chk-cascada"> 🌊 Cascadas</label>
+            <label><input type="checkbox" id="chk-belleza"> 📸 Vistas y cimas</label>
+            <label><input type="checkbox" id="chk-cultura"> 🏛️ Cultura y castillos</label>
+            <label><input type="checkbox" id="chk-biblioteca"> 📚 Bibliotecas</label>
+            <label><input type="checkbox" id="chk-bicicleta"> 🚲 Taller de bicis</label>
+            <label><input type="checkbox" id="chk-atm"> 🏧 Cajeros ATM</label>
+        </div>
 
-    let routePoints = [];
-    let pois = [];
-    let originalXml = null;
-    let trackLayer = null;
-    let baseFileName = "ruta";
-    const statusBox = document.getElementById('status');
+        <button id="btnSearch" class="btn-primary">Escanear ruta</button>
+        <div id="status" class="status">Esperando archivo…</div>
+        <div id="summary" class="summary"></div>
+        <button id="btnDownload" class="btn-outline" disabled>Descargar GPX con puntos de interés</button>
 
-    const servers = [
-        "https://overpass-api.de/api/interpreter",
-        "https://overpass.openstreetmap.fr/api/interpreter",
-        "https://lz4.overpass-api.de/api/interpreter"
-    ];
+        <footer class="sidebar-footer">
+            © 2026 Iván Huelves Illas —
+            <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a> —
+            <a href="https://www.linkedin.com/in/TU-USUARIO" target="_blank" rel="noopener">LinkedIn</a>
+        </footer>
+    </aside>
 
-    document.getElementById('gpxFile').addEventListener('change', function(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        baseFileName = file.name.substring(0, file.name.lastIndexOf('.')) || file.name;
-        const reader = new FileReader();
-        reader.onload = function(event) {
-            originalXml = event.target.result;
-            const parser = new DOMParser();
-            const xml = parser.parseFromString(originalXml, "text/xml");
-            const pts = xml.getElementsByTagName("trkpt");
-            routePoints = Array.from(pts).map(p => [parseFloat(p.getAttribute("lat")), parseFloat(p.getAttribute("lon"))]);
-            if (trackLayer) map.removeLayer(trackLayer);
-            trackLayer = L.polyline(routePoints, {color: '#e74c3c', weight: 5}).addTo(map);
-            map.fitBounds(trackLayer.getBounds());
-            statusBox.innerText = "Ruta cargada (" + routePoints.length + " puntos)";
-        };
-        reader.readAsText(file);
-    });
+    <div id="map"></div>
 
-    function getDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371e3;
-        const rad = Math.PI / 180;
-        const dLat = (lat2 - lat1) * rad;
-        const dLon = (lon2 - lon1) * rad;
-        const a = Math.sin(dLat/2) * Math.sin(dLat/2) + Math.cos(lat1 * rad) * Math.cos(lat2 * rad) * Math.sin(dLon/2) * Math.sin(dLon/2);
-        return R * (2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-    }
-
-    async function buscarPOIs() {
-        if (!routePoints.length) return alert("Sube la ruta primero");
-        const radius = parseInt(document.getElementById('radius').value);
-        let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
-        routePoints.forEach(p => {
-            if (p[0] < minLat) minLat = p[0]; if (p[0] > maxLat) maxLat = p[0];
-            if (p[1] < minLon) minLon = p[1]; if (p[1] > maxLon) maxLon = p[1];
-        });
-        const margin = (radius / 111000) + 0.01; 
-        const bbox = `${minLat - margin},${minLon - margin},${maxLat + margin},${maxLon + margin}`;
-
-        let filtros = "";
-        if (document.getElementById('chk-aguabeber').checked) {
-            filtros += `node["amenity"~"drinking_water|water_point"](${bbox});node["natural"~"spring"](${bbox});node["man_made"="water_tap"](${bbox});`;
-        }
-        if (document.getElementById('chk-servicios').checked) {
-            filtros += `node["amenity"~"toilets"](${bbox});node["building"="toilets"](${bbox});`;
-        }
-        if (document.getElementById('chk-ducha').checked) {
-            filtros += `node["amenity"~"shower|public_bath"](${bbox});`;
-        }
-        if (document.getElementById('chk-termas').checked) {
-            filtros += `node["natural"~"hot_spring"](${bbox});`;
-        }
-        if (document.getElementById('chk-camping').checked) {
-            filtros += `node["tourism"~"camp_site"](${bbox});`;
-        }
-        if (document.getElementById('chk-refugio').checked) {
-            filtros += `node["amenity"="shelter"](${bbox});node["shelter_type"~"Wetterpilz|basic_hut|lean_to|picnic_shelter|rock_shelter|weather_shelter|wetterpilz"](${bbox});node["building"="hut"](${bbox});node["tourism"~"alpine_hut|wilderness_hut"](${bbox});node["leisure"~"bird_hide|wildlife_hide"](${bbox});`;
-        }
-        if (document.getElementById('chk-comida').checked) {
-            filtros += `node["shop"~"supermarket|convenience|bakery|food|grocery"](${bbox});node["building"="supermarket"](${bbox});`;
-        }
-        if (document.getElementById('chk-picnic').checked) {
-            filtros += `node["leisure"="picnic_table"](${bbox});node["tourism"="picnic_site"](${bbox});node["amenity"="kitchen"](${bbox});`;
-        }
-        if (document.getElementById('chk-cascada').checked) {
-            filtros += `node["waterway"="waterfall"](${bbox});`;
-        }
-        if (document.getElementById('chk-belleza').checked) {
-            filtros += `node["tourism"~"viewpoint|attraction"](${bbox})`;
-        }
-        if (document.getElementById('chk-cultura').checked) {
-            filtros += `node["tourism"~"museum|attraction"](${bbox});node["building"~"cathedral|monastery|castle"](${bbox});node["amenity"~"monastery"](${bbox});node["historic"](${bbox});`;
-        }
-        if (document.getElementById('chk-biblioteca').checked) {
-            filtros += `node["amenity"~"library"](${bbox});`;
-        }
-        if (document.getElementById('chk-bicicleta').checked) {
-            filtros += `node["amenity"~"bicycle_repair_station"](${bbox});node["shop"="bicycle"](${bbox});`;
-        }
-        if (document.getElementById('chk-atm').checked) {
-            filtros += `node["amenity"~"atm"](${bbox});`;
-        }
-
-        const query = `[out:json][timeout:90];(${filtros});out center;`;
-        let data = null;
-        for (const url of servers) {
-            statusBox.innerText = `Consultando base de datos...`;
-            try {
-                const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/x-www-form-urlencoded" }, body: "data=" + encodeURIComponent(query) });
-                if (res.ok) { data = await res.json(); break; }
-            } catch (err) { console.log("Fallo en", url); }
-        }
-
-        if (!data || !data.elements) return statusBox.innerText = "Error: Servidores saturados.";
-        
-        statusBox.innerText = `Filtrando resultados...`;
-        pois.forEach(p => map.removeLayer(p.marker)); pois = [];
-
-        data.elements.forEach(el => {
-            const lat = el.lat || (el.center && el.center.lat);
-            const lon = el.lon || (el.center && el.center.lon);
-            if (!lat || !lon) return;
-
-            let isNear = false;
-            for (let i = 0; i < routePoints.length; i += 10) {
-                if (getDistance(lat, lon, routePoints[i][0], routePoints[i][1]) <= radius) { isNear = true; break; }
-            }
-
-            if (isNear) {
-                const tags = el.tags || {};
-                let tipo = "Interés"; let sym = "Waypoint"; let emoji = "📍";
-
-                if (tags.amenity === "drinking_water" || tags.natural === "spring" || tags.man_made === "water_tap") {
-                    tipo = "Agua"; sym = "Drinking Water"; emoji = "💧";
-                } else if (tags.amenity === "toilets" || tags.building === "toilets") {
-                    tipo = "Aseos"; sym = "Restroom"; emoji = "🚽";
-                } else if (tags.amenity === "shower" || tags.amenity === "public_bath") {
-                    tipo = "Duchas"; sym = "Shower"; emoji = "🚿";
-                } else if (tags.natural === "hot_spring") {
-                    tipo = "Termas"; sym = "Hot Spring"; emoji = "♨️";
-                } else if (tags.tourism === "camp_site") {
-                    tipo = "Camping"; sym = "Campground"; emoji = "⛺";
-                } else if (tags.amenity === "shelter" || tags.tourism === "alpine_hut" || tags.building === "hut" || tags.leisure === "bird_hide") {
-                    tipo = "Refugio"; sym = "Lodge"; emoji = "🛖";
-                } else if (tags.shop && ["supermarket", "bakery", "grocery"].includes(tags.shop)) {
-                    tipo = "Comida"; sym = "Grocery Store"; emoji = "🛒";
-                } else if (tags.leisure === "picnic_table" || tags.tourism === "picnic_site") {
-                    tipo = "Picnic"; sym = "Picnic Area"; emoji = "🥪";
-                } else if (tags.waterway === "waterfall") {
-                    tipo = "Cascada"; sym = "Waterfall"; emoji = "🌊";
-                } else if (tags.tourism === "viewpoint") {
-                    tipo = "Vistas"; sym = "Scenic Area"; emoji = "📸";
-                } else if (tags.historic || tags.tourism === "museum" || ["cathedral", "monastery", "castle"].includes(tags.building)) {
-                    tipo = "Cultura"; sym = "Museum"; emoji = "🏛️";
-                } else if (tags.amenity === "library") {
-                    tipo = "Biblioteca"; sym = "Library"; emoji = "📚";
-                } else if (tags.amenity === "atm") {
-                    tipo = "Cajero"; sym = "Bank"; emoji = "🏧";
-                } else if (tags.shop === "bicycle") {
-                    tipo = "Bicis"; sym = "Bike Trail"; emoji = "🚲";
-                }
-
-                const markerIcon = L.divIcon({ className: 'custom-icon', html: `<div>${emoji}</div>`, iconSize: [32, 32], iconAnchor: [16, 16] });
-                const dot = L.marker([lat, lon], {icon: markerIcon}).addTo(map);
-                const gmapsLink = `https://www.google.com/maps?q=${lat},${lon}`;
-                
-                dot.bindPopup(`<b>${tags.name || tipo}</b><br><small>${tipo}</small><br><a href="${gmapsLink}" target="_blank" class="popup-link">🗺️ Google Maps</a><br><button class="popup-btn-desc" onclick="window.borrar(${el.id})">Eliminar</button>`);
-                pois.push({ id: el.id, lat, lon, nombre: tags.name || tipo, sym, marker: dot });
-            }
-        });
-        statusBox.innerText = `Finalizado: ${pois.length} puntos.`;
-    }
-
-    window.borrar = function(id) {
-        const idx = pois.findIndex(p => p.id === id);
-        if (idx > -1) { map.removeLayer(pois[idx].marker); pois.splice(idx, 1); }
-    };
-
-    function descargarGPX() {
-        if (!pois.length) return alert("No hay puntos.");
-        const waypointsXml = pois.map(p => `<wpt lat="${p.lat}" lon="${p.lon}"><name>${p.nombre.replace(/[&<>"']/g, "")}</name><sym>${p.sym}</sym></wpt>`).join("");
-        const finalContent = originalXml.replace('</gpx>', waypointsXml + '\n</gpx>');
-        const blob = new Blob([finalContent], {type: 'application/gpx+xml'});
-        const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-        a.download = `${baseFileName}_enriquecido.gpx`;
-        a.click();
-    }
-</script>
+    <!-- Leaflet -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <!-- Lógica propia -->
+    <script src="script.js"></script>
 </body>
 </html>
