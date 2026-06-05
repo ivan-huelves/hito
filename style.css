@@ -180,6 +180,8 @@ button {
 .btn-outline:hover { background: var(--fg); color: var(--bg); }
 .btn-outline:disabled { opacity: 0.35; cursor: not-allowed; }
 .btn-outline:disabled:hover { background: transparent; color: var(--fg); }
+/* Estado activo del botón de añadir punto */
+.btn-outline.active { background: var(--fg); color: var(--bg); }
 
 /* ----------------------------- Estado ----------------------------- */
 .status {
@@ -275,6 +277,35 @@ button {
     font-weight: 700;
 }
 .popup-btn-del:hover { background: var(--fg); color: var(--bg); }
+
+/* Modo añadir punto: cursor de cruz sobre el mapa */
+#map.crosshair { cursor: crosshair; }
+
+/* Formulario para añadir un punto manual (dentro del popup) */
+.add-form { display: flex; flex-direction: column; gap: 8px; min-width: 190px; }
+.add-form input,
+.add-form select {
+    font-family: 'Space Mono', monospace;
+    font-size: 0.82rem;
+    padding: 7px;
+    width: 100%;
+    background: var(--bg);
+    border: 1.5px solid var(--fg);
+    border-radius: var(--radius);
+    box-sizing: border-box;
+}
+.popup-btn-add {
+    background: var(--fg);
+    color: var(--bg);
+    border: 1.5px solid var(--fg);
+    padding: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.8rem;
+    cursor: pointer;
+    border-radius: var(--radius);
+}
+.popup-btn-add:hover { opacity: 0.82; }
 
 /* Controles de Leaflet en clave monoespaciada */
 .leaflet-control-layers,

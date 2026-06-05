@@ -103,6 +103,9 @@ function clasificarPOI(tags) {
     return { emoji: "📍", tipo: "Interés", sym: "Waypoint" };
 }
 
+// Categoría genérica para puntos manuales cuyo tipo no es uno de los estipulados.
+const GENERIC = { emoji: "📍", tipo: "Punto", sym: "Waypoint" };
+
 // ---------------------- Estado ----------------------
 let routePoints = [];
 let pois = [];
@@ -284,29 +287,33 @@ async function buscarPOIs() {
 
         const tags = el.tags || {};
         const cat = clasificarPOI(tags);
-
-        const icon = L.divIcon({
-            className: 'custom-icon',
-            html: `<div>${cat.emoji}</div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 16]
-        });
-        const marker = L.marker([lat, lon], { icon }).addTo(map);
-        const gmaps = `https://www.google.com/maps?q=${lat},${lon}`;
-        const nombre = tags.name || cat.tipo;
-
-        marker.bindPopup(
-            `<div class="popup-title"><b>${escapeXml(nombre)}</b></div>` +
-            `<div class="popup-type">${cat.emoji} ${cat.tipo}</div>` +
-            `<a href="${gmaps}" target="_blank" rel="noopener" class="popup-link">Ver en Google Maps</a><br>` +
-            `<button class="popup-btn-del" onclick="window.borrarPOI(${el.id})">Eliminar punto</button>`
-        );
-
-        pois.push({ id: el.id, lat, lon, nombre, sym: cat.sym, emoji: cat.emoji, marker });
+        crearPOI(el.id, lat, lon, tags.name || cat.tipo, cat);
     });
 
     setStatus(`Encontrados ${pois.length} puntos.`);
     btnDownload.disabled = pois.length === 0;
+}
+
+// Crea un marcador de POI (lo usan tanto la búsqueda automática como el añadido manual).
+function crearPOI(id, lat, lon, nombre, cat) {
+    const icon = L.divIcon({
+        className: 'custom-icon',
+        html: `<div>${cat.emoji}</div>`,
+        iconSize: [32, 32],
+        iconAnchor: [16, 16]
+    });
+    const marker = L.marker([lat, lon], { icon }).addTo(map);
+    const gmaps = `https://www.google.com/maps?q=${lat},${lon}`;
+
+    marker.bindPopup(
+        `<div class="popup-title"><b>${escapeXml(nombre)}</b></div>` +
+        `<div class="popup-type">${cat.emoji} ${cat.tipo}</div>` +
+        `<a href="${gmaps}" target="_blank" rel="noopener" class="popup-link">Ver en Google Maps</a><br>` +
+        `<button class="popup-btn-del" onclick="window.borrarPOI(${id})">Eliminar punto</button>`
+    );
+
+    pois.push({ id, lat, lon, nombre, sym: cat.sym, emoji: cat.emoji, marker });
+    return marker;
 }
 
 window.borrarPOI = function (id) {
@@ -386,6 +393,59 @@ document.getElementById('sidebarClose').addEventListener('click', cerrarMenu);
 backdrop.addEventListener('click', cerrarMenu);
 
 window.addEventListener('resize', () => map.invalidateSize());
+
+// ---------------------- Añadir punto manual ----------------------
+let modoAnadir = false;
+let clickLatLng = null;
+let manualId = -1; // ids negativos para no chocar con los de OpenStreetMap
+const btnAdd = document.getElementById('btnAdd');
+const mapEl = document.getElementById('map');
+
+// Opciones del selector: las mismas categorías que ya existen + "Otro".
+const opcionesTipo =
+    Object.keys(FILTERS).map(id => {
+        const f = FILTERS[id];
+        return `<option value="${id}">${f.emoji} ${f.tipo}</option>`;
+    }).join("") +
+    `<option value="otro">📍 Otro</option>`;
+
+function setModoAnadir(activo) {
+    modoAnadir = activo;
+    btnAdd.classList.toggle('active', activo);
+    btnAdd.textContent = activo ? 'Añadir punto: toca el mapa' : 'Añadir punto manual';
+    mapEl.classList.toggle('crosshair', activo);
+    if (!activo) map.closePopup();
+    // En móvil, cerrar el menú para poder tocar el mapa.
+    if (activo && window.matchMedia('(max-width: 768px)').matches) cerrarMenu();
+}
+
+btnAdd.addEventListener('click', () => setModoAnadir(!modoAnadir));
+
+map.on('click', e => {
+    if (!modoAnadir) return;
+    clickLatLng = e.latlng;
+    const form =
+        `<div class="add-form">` +
+        `<input id="add-name" type="text" placeholder="Nombre (opcional)">` +
+        `<select id="add-type">${opcionesTipo}</select>` +
+        `<button class="popup-btn-add" onclick="window.confirmarPunto()">Añadir punto</button>` +
+        `</div>`;
+    L.popup({ closeButton: true }).setLatLng(e.latlng).setContent(form).openOn(map);
+});
+
+// Confirmar el punto desde el formulario del popup (global: lo llama el HTML del popup).
+window.confirmarPunto = function () {
+    if (!clickLatLng) return;
+    const nombre = (document.getElementById('add-name').value || "").trim();
+    const tipo = document.getElementById('add-type').value;
+    const cat = tipo === 'otro' ? GENERIC : FILTERS[tipo];
+    const marker = crearPOI(manualId--, clickLatLng.lat, clickLatLng.lng, nombre || cat.tipo, cat);
+    map.closePopup();
+    clickLatLng = null;
+    btnDownload.disabled = pois.length === 0;
+    setStatus(`Punto añadido (${pois.length} en total).`);
+    marker.openPopup();
+};
 
 // ---------------------- Inicio ----------------------
 cargarPreferencias();
