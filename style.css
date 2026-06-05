@@ -30,8 +30,8 @@ body {
 }
 
 /* ----------------------------- Sidebar ----------------------------- */
-/* El panel completo NO hace scroll: solo la lista de filtros.
-   Así los botones de escanear/descargar quedan siempre visibles. */
+/* El panel completo hace scroll (con barra visible) cuando el contenido
+   no cabe. Es la opción más clara para el usuario. */
 #sidebar {
     width: var(--sidebar-w);
     flex-shrink: 0;
@@ -41,15 +41,25 @@ body {
     display: flex;
     flex-direction: column;
     gap: 18px;
-    overflow: hidden;
+    overflow-y: auto;
+    scrollbar-width: thin;              /* Firefox: barra fina pero visible */
+    scrollbar-color: rgba(0,0,0,0.4) transparent;
     border-right: 2px solid var(--line-strong);
     z-index: 1000;
 }
+#sidebar::-webkit-scrollbar { width: 10px; }
+#sidebar::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.35); }
+#sidebar::-webkit-scrollbar-thumb:hover { background: rgba(0, 0, 0, 0.55); }
+#sidebar::-webkit-scrollbar-track { background: transparent; }
 
-.sidebar-top { display: flex; flex-direction: column; gap: 16px; flex-shrink: 0; }
-.sidebar-bottom { display: flex; flex-direction: column; gap: 12px; flex-shrink: 0; }
-
-.brand { display: flex; flex-direction: column; gap: 4px; }
+/* Cabecera: título y botón de cerrar a la misma altura */
+.sidebar-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+.brand { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 4px; }
 .brand h1 {
     margin: 0;
     font-size: 1.7rem;
@@ -90,8 +100,6 @@ select { cursor: pointer; }
 .filter-section {
     display: flex;
     flex-direction: column;
-    flex: 1 1 auto;
-    min-height: 0; /* imprescindible para que el hijo con scroll funcione */
     border: 1.5px solid var(--line-strong);
     border-radius: var(--radius);
     padding: 14px;
@@ -103,7 +111,6 @@ select { cursor: pointer; }
     flex-wrap: nowrap;
     gap: 8px;
     margin-bottom: 10px;
-    flex-shrink: 0;
 }
 .filter-head strong {
     font-size: 0.8rem;
@@ -126,15 +133,7 @@ select { cursor: pointer; }
 }
 .filter-toggle-all:hover { opacity: 0.55; }
 
-/* Lista scrollable de checkboxes */
-.filter-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-}
+.filter-list { display: flex; flex-direction: column; gap: 2px; }
 .filter-list label {
     display: flex;
     align-items: center;
@@ -177,7 +176,6 @@ button {
     color: var(--fg);
     border: 1.5px solid var(--fg);
     font-size: 0.85rem;
-    white-space: nowrap;
 }
 .btn-outline:hover { background: var(--fg); color: var(--bg); }
 .btn-outline:disabled { opacity: 0.35; cursor: not-allowed; }
@@ -193,16 +191,6 @@ button {
 }
 .status:empty { display: none; } /* se oculta cuando no hay mensaje */
 .status.error { border-style: solid; font-weight: 700; }
-
-.summary { font-size: 0.78rem; line-height: 1.5; }
-.summary:empty { display: none; }
-.summary ul { list-style: none; margin: 0; padding: 0; }
-.summary li {
-    display: flex;
-    justify-content: space-between;
-    border-bottom: 1px dotted var(--line);
-    padding: 3px 0;
-}
 
 /* ----------------------------- Footer ----------------------------- */
 .sidebar-footer {
@@ -366,10 +354,10 @@ button {
 
 .sidebar-close {
     display: none; /* solo visible en móvil */
-    align-self: flex-end;
     width: auto;
     padding: 4px 10px;
     font-size: 1.1rem;
+    flex-shrink: 0;
     background: transparent;
     border: 1.5px solid var(--fg);
     color: var(--fg);
@@ -391,7 +379,7 @@ button {
         top: 0;
         left: 0;
         height: 100vh;
-        height: 100dvh; /* usa el alto real visible (evita que la barra del navegador tape el final) */
+        height: 100dvh; /* usa el alto real visible */
         width: 86vw;
         max-width: 360px;
         transform: translateX(-100%);
@@ -402,6 +390,6 @@ button {
 
     .sidebar-close { display: block; }
 
-    /* Eleva un poco los controles inferiores derecha (satélite) para que no los tape el navegador */
+    /* Eleva un poco el control de capas (satélite) para que no lo tape el navegador */
     .leaflet-bottom.leaflet-right .leaflet-control { margin-bottom: 18px; }
 }

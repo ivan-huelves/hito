@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Estilos propios (sube el ?v= cada vez que edites para evitar la caché) -->
-    <link rel="stylesheet" href="style.css?v=4" />
+    <link rel="stylesheet" href="style.css?v=5" />
 </head>
 <body>
 
@@ -24,29 +24,28 @@
 
     <aside id="sidebar">
 
-        <div class="sidebar-top">
-            <button id="sidebarClose" class="sidebar-close" aria-label="Cerrar menú">✕</button>
-
+        <div class="sidebar-header">
             <div class="brand">
                 <h1>Hito</h1>
                 <span class="tagline">Añade a tu ruta rápidamente puntos de interés</span>
             </div>
+            <button id="sidebarClose" class="sidebar-close" aria-label="Cerrar menú">✕</button>
+        </div>
 
-            <div>
-                <label class="field-label" for="gpxFile">1 · Subir archivo GPX ruta</label>
-                <input type="file" id="gpxFile" accept=".gpx">
-            </div>
+        <div>
+            <label class="field-label" for="gpxFile">1 · Subir archivo GPX ruta</label>
+            <input type="file" id="gpxFile" accept=".gpx">
+        </div>
 
-            <div>
-                <label class="field-label" for="radius">2 · Radio de búsqueda</label>
-                <select id="radius">
-                    <option value="3000">3 km</option>
-                    <option value="5000" selected>5 km</option>
-                    <option value="10000">10 km</option>
-                    <option value="15000">15 km</option>
-                    <option value="20000">20 km</option>
-                </select>
-            </div>
+        <div>
+            <label class="field-label" for="radius">2 · Radio de búsqueda</label>
+            <select id="radius">
+                <option value="3000">3 km</option>
+                <option value="5000" selected>5 km</option>
+                <option value="10000">10 km</option>
+                <option value="15000">15 km</option>
+                <option value="20000">20 km</option>
+            </select>
         </div>
 
         <div class="filter-section">
@@ -72,22 +71,19 @@
             </div>
         </div>
 
-        <div class="sidebar-bottom">
-            <button id="btnSearch" class="btn-primary">Escanear ruta</button>
-            <div id="status" class="status"></div>
-            <div id="summary" class="summary"></div>
-            <button id="btnDownload" class="btn-outline" disabled>Descargar GPX con puntos de interés</button>
+        <button id="btnSearch" class="btn-primary">Escanear ruta</button>
+        <div id="status" class="status"></div>
+        <button id="btnDownload" class="btn-outline" disabled>Descargar GPX con puntos de interés</button>
 
-            <footer class="sidebar-footer">
-                <div class="footer-meta">
-                    Datos de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
-                    · <button id="infoBtn" class="linklike">cómo funciona</button>
-                </div>
-                © 2026 Iván Huelves Illas —
-                <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a> —
-                <a href="https://www.linkedin.com/in/ivan-huelves-illas/" target="_blank" rel="noopener">LinkedIn</a>
-            </footer>
-        </div>
+        <footer class="sidebar-footer">
+            <div class="footer-meta">
+                Datos de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
+                · <button id="infoBtn" class="linklike">cómo funciona</button>
+            </div>
+            © 2026 Iván Huelves Illas —
+            <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a> —
+            <a href="https://www.linkedin.com/in/ivan-huelves-illas/" target="_blank" rel="noopener">LinkedIn</a>
+        </footer>
 
     </aside>
 
@@ -113,6 +109,6 @@
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Lógica propia (sube el ?v= cada vez que edites para evitar la caché) -->
-    <script src="script.js?v=4"></script>
+    <script src="script.js?v=5"></script>
 </body>
 </html>

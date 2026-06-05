@@ -132,7 +132,6 @@ map.attributionControl.setPosition('bottomleft');
 
 // ---------------------- Utilidades de interfaz ----------------------
 const statusBox = document.getElementById('status');
-const summaryBox = document.getElementById('summary');
 const btnDownload = document.getElementById('btnDownload');
 
 function setStatus(msg, isError = false) {
@@ -212,7 +211,6 @@ document.getElementById('gpxFile').addEventListener('change', function (e) {
         trackLayer = L.polyline(routePoints, { color: '#000000', weight: 4 }).addTo(map);
         map.fitBounds(trackLayer.getBounds());
         setStatus(`Ruta cargada (${routePoints.length} puntos).`);
-        summaryBox.innerHTML = "";
     };
     reader.readAsText(file);
 });
@@ -268,7 +266,6 @@ async function buscarPOIs() {
     setStatus("Filtrando resultados…");
     pois.forEach(p => map.removeLayer(p.marker));
     pois = [];
-    const conteo = {};
 
     data.elements.forEach(el => {
         const lat = el.lat || (el.center && el.center.lat);
@@ -287,7 +284,6 @@ async function buscarPOIs() {
 
         const tags = el.tags || {};
         const cat = clasificarPOI(tags);
-        conteo[cat.tipo] = (conteo[cat.tipo] || 0) + 1;
 
         const icon = L.divIcon({
             className: 'custom-icon',
@@ -308,12 +304,6 @@ async function buscarPOIs() {
 
         pois.push({ id: el.id, lat, lon, nombre, sym: cat.sym, emoji: cat.emoji, marker });
     });
-
-    const filas = Object.entries(conteo)
-        .sort((a, b) => b[1] - a[1])
-        .map(([tipo, n]) => `<li><span>${tipo}</span><span>${n}</span></li>`)
-        .join("");
-    summaryBox.innerHTML = filas ? `<ul>${filas}</ul>` : "";
 
     setStatus(`Encontrados ${pois.length} puntos.`);
     btnDownload.disabled = pois.length === 0;
