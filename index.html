@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Estilos propios (sube el ?v= cada vez que edites para evitar la caché) -->
-    <link rel="stylesheet" href="style.css?v=6" />
+    <link rel="stylesheet" href="style.css?v=7" />
 </head>
 <body>
 
@@ -90,6 +90,12 @@
 
     <div id="map"></div>
 
+    <!-- Barra contextual del modo "añadir punto" (se muestra solo en ese modo) -->
+    <div id="editBar">
+        <span>Toca el mapa para añadir</span>
+        <button id="editDone" class="edit-done">Listo</button>
+    </div>
+
     <!-- Ventana de información -->
     <div id="infoModal" class="modal-backdrop">
         <div class="modal" role="dialog" aria-modal="true" aria-labelledby="infoTitle">
@@ -110,6 +116,6 @@
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Lógica propia (sube el ?v= cada vez que edites para evitar la caché) -->
-    <script src="script.js?v=6"></script>
+    <script src="script.js?v=7"></script>
 </body>
 </html>

@@ -281,6 +281,39 @@ button {
 /* Modo añadir punto: cursor de cruz sobre el mapa */
 #map.crosshair { cursor: crosshair; }
 
+/* Barra contextual del modo edición (a la altura del zoom, sin ocupar más alto) */
+#editBar {
+    display: none;
+    position: fixed;
+    top: 14px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1300;
+    align-items: center;
+    gap: 12px;
+    background: var(--bg);
+    border: 1.5px solid var(--fg);
+    border-radius: var(--radius);
+    padding: 7px 8px 7px 14px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+    font-size: 0.82rem;
+}
+#editBar.show { display: flex; }
+#editBar span { white-space: nowrap; }
+.edit-done {
+    width: auto;
+    flex-shrink: 0;
+    padding: 6px 14px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--fg);
+    color: var(--bg);
+    border: 1.5px solid var(--fg);
+    border-radius: var(--radius);
+    cursor: pointer;
+}
+.edit-done:hover { opacity: 0.82; }
+
 /* Formulario para añadir un punto manual (dentro del popup) */
 .add-form { display: flex; flex-direction: column; gap: 8px; min-width: 190px; }
 .add-form input,
@@ -423,4 +456,14 @@ button {
 
     /* Eleva un poco el control de capas (satélite) para que no lo tape el navegador */
     .leaflet-bottom.leaflet-right .leaflet-control { margin-bottom: 18px; }
+
+    /* La barra de edición se ancla a la izquierda y reserva la derecha para el zoom */
+    #editBar {
+        left: 14px;
+        right: 68px;
+        transform: none;
+        justify-content: space-between;
+    }
+    /* Durante el modo edición no hace falta la hamburguesa (se sale con "Listo") */
+    body.edit-mode #menuToggle { display: none; }
 }

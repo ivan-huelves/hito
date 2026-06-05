@@ -400,6 +400,7 @@ let clickLatLng = null;
 let manualId = -1; // ids negativos para no chocar con los de OpenStreetMap
 const btnAdd = document.getElementById('btnAdd');
 const mapEl = document.getElementById('map');
+const editBar = document.getElementById('editBar');
 
 // Opciones del selector: las mismas categorías que ya existen + "Otro".
 const opcionesTipo =
@@ -412,14 +413,21 @@ const opcionesTipo =
 function setModoAnadir(activo) {
     modoAnadir = activo;
     btnAdd.classList.toggle('active', activo);
-    btnAdd.textContent = activo ? 'Añadir punto: toca el mapa' : 'Añadir punto manual';
     mapEl.classList.toggle('crosshair', activo);
+    editBar.classList.toggle('show', activo);
+    document.body.classList.toggle('edit-mode', activo);
     if (!activo) map.closePopup();
-    // En móvil, cerrar el menú para poder tocar el mapa.
-    if (activo && window.matchMedia('(max-width: 768px)').matches) cerrarMenu();
+
+    // En móvil: al activar se cierra el menú (para ver el mapa);
+    // al salir con "Listo" se vuelve a abrir (para descargar sin buscar el botón).
+    if (window.matchMedia('(max-width: 768px)').matches) {
+        if (activo) cerrarMenu();
+        else abrirMenu();
+    }
 }
 
 btnAdd.addEventListener('click', () => setModoAnadir(!modoAnadir));
+document.getElementById('editDone').addEventListener('click', () => setModoAnadir(false));
 
 map.on('click', e => {
     if (!modoAnadir) return;
