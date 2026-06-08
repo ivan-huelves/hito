@@ -24,10 +24,12 @@ Además, puedes **añadir puntos manualmente** haciendo clic directamente sobre 
 
 ## Origen de los datos
 
-Los puntos de interés se obtienen de:
+Este proyecto utiliza datos de:
 
-- OpenStreetMap
-- API pública de Overpass
+- OpenStreetMap (© OpenStreetMap contributors)
+- Consultados mediante la API pública de Overpass
+
+Los datos están sujetos a la licencia Open Database License (ODbL).
 
 Los datos son colaborativos, por lo que:
 
@@ -57,6 +59,17 @@ Antes de usarla en terreno:
 - Filtrado por categorías
 - Añadido manual de puntos en el mapa
 - Exportación de GPX enriquecido
+
+---
+
+## Licencia y avisos
+
+Este proyecto está bajo una licencia MIT modificada con restricciones de uso no comercial y obligación de atribución.
+
+Ver:
+
+- LICENSE (licencia del software)
+- NOTICE (atribución de datos y fuentes externas)
 
 ---
 
