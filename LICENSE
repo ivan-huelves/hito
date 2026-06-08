@@ -44,3 +44,12 @@ The above copyright notice, attribution requirement, and permission notice
 shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND...
+
+5. OpenStreetMap Attribution
+
+This project uses data from OpenStreetMap contributors via the Overpass API.
+
+© OpenStreetMap contributors
+
+Users must comply with the OpenStreetMap License (ODbL)
+when using or redistributing data derived from this Software.
