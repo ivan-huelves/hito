@@ -194,6 +194,10 @@ document.getElementById('gpxFile').addEventListener('change', function (e) {
 
     const reader = new FileReader();
     reader.onload = function (event) {
+        // Actualizar la etiqueta del input personalizado
+        const fileLabel = document.getElementById('fileLabel');
+        fileLabel.textContent = file.name;
+        fileLabel.style.color = 'var(--fg)';
         originalXml = event.target.result;
         const xml = new DOMParser().parseFromString(originalXml, "text/xml");
 

@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Estilos propios (sube el ?v= cada vez que edites para evitar la caché) -->
-    <link rel="stylesheet" href="style.css?v=7" />
+    <link rel="stylesheet" href="style.css?v=9" />
 </head>
 <body>
 
@@ -34,7 +34,12 @@
 
         <div>
             <label class="field-label" for="gpxFile">1 · Subir archivo GPX ruta</label>
-            <input type="file" id="gpxFile" accept=".gpx">
+            <!-- Input de archivo personalizado: el nativo queda oculto -->
+            <label class="file-label" for="gpxFile">
+                <span class="file-btn">Seleccionar</span>
+                <span id="fileLabel" class="file-name">Ningún archivo</span>
+            </label>
+            <input type="file" id="gpxFile" accept=".gpx" class="file-input-hidden">
         </div>
 
         <div>
@@ -71,7 +76,7 @@
             </div>
         </div>
 
-        <button id="btnSearch" class="btn-primary">Escanear ruta</button>
+        <button id="btnSearch" class="btn-primary">Buscar puntos automáticamente</button>
         <div id="status" class="status"></div>
         <button id="btnAdd" class="btn-outline">Añadir punto manual</button>
         <button id="btnDownload" class="btn-outline" disabled>Descargar GPX con puntos de interés</button>
@@ -79,11 +84,11 @@
         <footer class="sidebar-footer">
             <div class="footer-meta">
                 Datos de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
-                · <button id="infoBtn" class="linklike">cómo funciona</button>
+                · <button id="infoBtn" class="linklike">Cómo funciona</button>
             </div>
             © 2026 Iván Huelves Illas —
-            <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a> —
-            <a href="https://www.linkedin.com/in/ivan-huelves-illas/" target="_blank" rel="noopener">LinkedIn</a>
+            <a href="https://github.com/ivan-huelves" target="_blank" rel="noopener">GitHub</a><br>
+            <a href="https://ko-fi.com/ivanhuelves" target="_blank" rel="noopener">Invítame a un café ☕</a>
         </footer>
 
     </aside>
@@ -103,8 +108,9 @@
             <h2 id="infoTitle">¿Qué es Hito?</h2>
             <p>Hito añade puntos de interés (agua, refugios, comida, miradores, cajeros…)
                a tu ruta. Sube un archivo GPX, elige qué buscar y un radio alrededor del
-               recorrido, y la app coloca esos puntos sobre el mapa. Después puedes descargar
-               un GPX enriquecido con los waypoints para tu GPS o dispositivo Garmin.</p>
+               recorrido, y la app coloca esos puntos sobre el mapa. También puedes añadir
+               puntos manualmente haciendo clic directamente en el mapa. Después puedes
+               descargar un GPX enriquecido con los waypoints para tu GPS o dispositivo Garmin.</p>
             <p>Los datos provienen de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
                (consultados a través de la API pública de Overpass). Son colaborativos, por lo
                que pueden estar incompletos o desactualizados.</p>
@@ -116,6 +122,6 @@
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Lógica propia (sube el ?v= cada vez que edites para evitar la caché) -->
-    <script src="script.js?v=7"></script>
+    <script src="script.js?v=9"></script>
 </body>
 </html>
