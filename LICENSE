@@ -3,37 +3,44 @@ MIT License (Modified)
 Copyright (c) 2026 Iván Huelves
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, and sublicense copies
-of the Software, subject to the following conditions:
+of this software and associated documentation files (the "Software"), to use,
+copy, modify, and distribute the Software, subject to the following conditions:
 
 1. Attribution Requirement
 
-All copies, substantial portions, and derivative works of the Software must
-include the following attribution in a visible and reasonable place:
+All copies, modified versions, or substantial portions of the Software must
+include clear attribution to the original author:
 
-"Based on the work of Iván Huelves – https://github.com/ivan-huelves/hito"
+Iván Huelves  
+https://github.com/ivan-huelves/hito
+
+This attribution must be visible in documentation, about pages, or any
+user-facing representation of the Software.
 
 2. Non-Commercial Use Only
 
-The Software and any derivative works may NOT be used for commercial purposes,
-including but not limited to:
+The Software and any derivative works may NOT be used for commercial purposes.
 
-- Selling the Software or any derivative work
-- Including the Software in commercial products or services
-- Using the Software in paid client work or commercial deployments
-- Monetizing the Software directly or indirectly
+Commercial use includes, but is not limited to:
 
-3. Preservation of Notice
+- Selling the Software or derivatives
+- Including the Software in paid products or services
+- Using the Software in commercial SaaS platforms
+- Using the Software as part of paid client deliverables
+- Monetization through advertising, subscriptions, or indirect revenue
 
-The above copyright notice, attribution requirement, and this permission notice
+3. Data Responsibility
+
+This Software may use third-party geographic data sources (including OpenStreetMap
+via the Overpass API). Such data is provided under their respective licenses
+and may be incomplete or inaccurate.
+
+Users are responsible for verifying critical route information before use in
+real-world navigation.
+
+4. Preservation of Notice
+
+The above copyright notice, attribution requirement, and permission notice
 shall be included in all copies or substantial portions of the Software.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND...
