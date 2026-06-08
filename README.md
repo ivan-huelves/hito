@@ -1,54 +1,69 @@
-## Uso
+# Hito
+
+Hito es una herramienta para explorar rutas GPX y enriquecer recorridos con puntos de interés (POIs) a partir de datos geográficos.
+
+Permite cargar una ruta, analizar su entorno y generar información útil para actividades al aire libre como senderismo, cicloturismo o viajes de larga distancia.
+
+---
+
+## ¿Qué es Hito?
+
+Hito añade puntos de interés a una ruta GPS (GPX).
 
 Puedes:
 
-- Estudiar el código
-- Modificarlo
-- Crear derivados no comerciales
-- Compartir versiones modificadas
+- Subir un archivo GPX
+- Definir un radio de búsqueda
+- Seleccionar tipos de puntos de interés (agua, refugios, comida, miradores, cajeros, etc.)
+- Visualizar estos puntos sobre el mapa y eliminar los que consideres
+- Descargar un GPX enriquecido con waypoints para usar en dispositivos GPS (Garmin, apps móviles, etc.)
 
-Siempre bajo las condiciones de la licencia.
-
----
-
-## Condiciones de uso
-
-Este proyecto es **no comercial**.
-
-No está permitido:
-
-- Usarlo en proyectos comerciales o con fines de lucro
-- Integrarlo en productos o servicios de pago
-- Revender el código o derivados
-
-Sí está permitido:
-
-- Uso educativo
-- Uso artístico
-- Uso de investigación
-- Experimentación personal o académica
+Además, puedes **añadir puntos manualmente** haciendo clic directamente sobre el mapa.
 
 ---
 
-## Atribución obligatoria
+## Origen de los datos
 
-Todo uso, copia o derivación del proyecto debe incluir:
+Los puntos de interés se obtienen de:
 
-Iván Huelves  
-https://github.com/ivan-huelves/hito
+- OpenStreetMap
+- API pública de Overpass
 
-en un lugar visible del proyecto o documentación.
+Los datos son colaborativos, por lo que:
 
----
-
-## Licencia
-
-Este proyecto está publicado bajo una licencia MIT modificada con restricción de uso no comercial y obligación de atribución.
-
-Ver archivo `LICENSE` para detalles completos.
+- Pueden estar incompletos
+- Pueden estar desactualizados
+- Pueden variar según la zona
 
 ---
 
-## Autor
+## ⚠️ Aviso importante
 
-Iván Huelves
+Esta herramienta es de apoyo a la planificación de rutas, no de navegación crítica.
+
+Antes de usarla en terreno:
+
+- Verifica siempre puntos críticos (agua, refugios, seguridad)
+- Contrasta la información con otras fuentes cuando sea necesario
+- No dependas exclusivamente de los datos generados
+
+---
+
+## Funcionalidades
+
+- Importación de archivos GPX
+- Visualización de rutas en mapa
+- Búsqueda de POIs alrededor del recorrido
+- Filtrado por categorías
+- Añadido manual de puntos en el mapa
+- Exportación de GPX enriquecido
+
+---
+
+## Uso
+
+Clona el repositorio:
+
+```bash
+git clone https://github.com/ivan-huelves/hito.git
+cd hito
