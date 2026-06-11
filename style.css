@@ -303,8 +303,9 @@ button {
     border: 1.5px solid var(--fg);
 }
 .leaflet-popup-content { font-family: 'Space Mono', monospace; }
-.popup-title { font-size: 0.95rem; }
-.popup-type { color: var(--muted); font-size: 0.78rem; }
+.popup-title { font-size: 0.95rem; margin-bottom: 6px; }
+.popup-type { color: var(--muted); font-size: 0.78rem; margin-bottom: 4px; }
+.leaflet-popup-close-button { top: 10px !important; right: 10px !important; }
 .popup-link {
     display: inline-block;
     margin-top: 8px;

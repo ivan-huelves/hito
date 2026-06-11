@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Hito — GPX + puntos de interés</title>
+    <link rel="icon" href="https://img.icons8.com/?size=32&id=n0l89fjn0Zez&format=png" type="image/png">
 
     <!-- Tipografía -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -45,11 +46,11 @@
         <div>
             <label class="field-label" for="radius">2 · Radio de búsqueda</label>
             <select id="radius">
+                <option value="1000">1 km</option>
+                <option value="2000">2 km</option>
                 <option value="3000">3 km</option>
                 <option value="5000" selected>5 km</option>
                 <option value="10000">10 km</option>
-                <option value="15000">15 km</option>
-                <option value="20000">20 km</option>
             </select>
         </div>
 
@@ -59,20 +60,23 @@
                 <button id="toggleAll" class="filter-toggle-all">todos / ninguno</button>
             </div>
             <div class="filter-list">
-                <label><input type="checkbox" id="chk-aguabeber" checked> 💧 Agua potable</label>
-                <label><input type="checkbox" id="chk-servicios"> 🚽 Aseos / Baños</label>
-                <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas públicas</label>
-                <label><input type="checkbox" id="chk-termas"> ♨️ Termas naturales</label>
+                <label><input type="checkbox" id="chk-aguabeber" checked> 💧 Agua</label>
+                <label><input type="checkbox" id="chk-servicios"> 🚽 Aseos</label>
+                <label><input type="checkbox" id="chk-ducha"> 🚿 Duchas</label>
+                <label><input type="checkbox" id="chk-comida" checked> 🛒 Comida</label>
                 <label><input type="checkbox" id="chk-camping"> ⛺ Camping</label>
-                <label><input type="checkbox" id="chk-refugio" checked> 🛖 Refugios y cabañas</label>
-                <label><input type="checkbox" id="chk-comida" checked> 🛒 Comida y súper</label>
-                <label><input type="checkbox" id="chk-picnic"> 🥪 Picnic y cocinas</label>
-                <label><input type="checkbox" id="chk-cascada"> 🌊 Cascadas</label>
-                <label><input type="checkbox" id="chk-belleza"> 📸 Vistas y cimas</label>
-                <label><input type="checkbox" id="chk-cultura"> 🏛️ Cultura y castillos</label>
+                <label><input type="checkbox" id="chk-refugio" checked> 🛖 Refugios</label>
+                <label><input type="checkbox" id="chk-picnic"> 🥪 Picnic</label>
+                <label><input type="checkbox" id="chk-cascada"> 🏞️ Parajes</label>
+                <label><input type="checkbox" id="chk-belleza"> 📸 Vistas</label>
+                <label><input type="checkbox" id="chk-termas"> ♨️ Termas</label>
+                <label><input type="checkbox" id="chk-cultura"> 🏛️ Cultura</label>
+                <label><input type="checkbox" id="chk-bicicleta"> 🚲 Tiendas y talleres</label>
                 <label><input type="checkbox" id="chk-biblioteca"> 📚 Bibliotecas</label>
-                <label><input type="checkbox" id="chk-bicicleta"> 🚲 Taller de bicis</label>
+                <label><input type="checkbox" id="chk-carga"> 🔋 Carga de móvil</label>
                 <label><input type="checkbox" id="chk-atm"> 🏧 Cajeros ATM</label>
+                <label><input type="checkbox" id="chk-salud"> 🏥 Salud</label>
+                <label><input type="checkbox" id="chk-seguridad"> 🚔 Seguridad</label>
             </div>
         </div>
 
