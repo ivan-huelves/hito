@@ -412,8 +412,8 @@ btnDownload.addEventListener('click', descargarGPX);
 
 document.getElementById('toggleAll').addEventListener('click', () => {
     const ids = Object.keys(FILTERS);
-    const algunoApagado = ids.some(id => !document.getElementById(id).checked);
-    ids.forEach(id => { document.getElementById(id).checked = algunoApagado; });
+    const algunoApagado = ids.some(id => { const el = document.getElementById(id); return el && !el.checked; });
+    ids.forEach(id => { const el = document.getElementById(id); if (el) el.checked = algunoApagado; });
     guardarPreferencias();
 });
 
