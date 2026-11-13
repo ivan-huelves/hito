@@ -15,7 +15,7 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
 
     <!-- Estilos propios (sube el ?v= cada vez que edites para evitar la caché) -->
-    <link rel="stylesheet" href="style.css?v=9" />
+    <link rel="stylesheet" href="style.css?v=10" />
 </head>
 <body>
 
@@ -34,13 +34,27 @@
         </div>
 
         <div>
-            <label class="field-label" for="gpxFile">1 · Subir archivo GPX ruta</label>
-            <!-- Input de archivo personalizado: el nativo queda oculto -->
-            <label class="file-label" for="gpxFile">
-                <span class="file-btn">Seleccionar</span>
-                <span id="fileLabel" class="file-name">Ningún archivo</span>
-            </label>
-            <input type="file" id="gpxFile" accept=".gpx" class="file-input-hidden">
+            <span class="field-label">1 · Dónde buscar</span>
+            <!-- Selector de modo: a lo largo de una ruta o alrededor de un punto -->
+            <div class="mode-switch" role="tablist">
+                <button id="modeRoute" class="mode-btn active" role="tab" aria-selected="true">Ruta GPX</button>
+                <button id="modePoint" class="mode-btn" role="tab" aria-selected="false">Punto en el mapa</button>
+            </div>
+
+            <!-- Modo ruta: input de archivo personalizado (el nativo queda oculto) -->
+            <div id="panelRoute" class="mode-panel">
+                <label class="file-label" for="gpxFile">
+                    <span class="file-btn">Seleccionar</span>
+                    <span id="fileLabel" class="file-name">Ningún archivo</span>
+                </label>
+                <input type="file" id="gpxFile" accept=".gpx" class="file-input-hidden">
+            </div>
+
+            <!-- Modo punto: se elige el centro tocando el mapa -->
+            <div id="panelPoint" class="mode-panel" hidden>
+                <button id="btnPickPoint" class="btn-outline">Elegir punto en el mapa</button>
+                <span id="pointLabel" class="point-label">Ningún punto elegido</span>
+            </div>
         </div>
 
         <div>
@@ -101,7 +115,7 @@
 
     <!-- Barra contextual del modo "añadir punto" (se muestra solo en ese modo) -->
     <div id="editBar">
-        <span>Toca el mapa para añadir</span>
+        <span id="editBarText">Toca el mapa para añadir</span>
         <button id="editDone" class="edit-done">Listo</button>
     </div>
 
@@ -112,7 +126,8 @@
             <h2 id="infoTitle">¿Qué es Hito?</h2>
             <p>Hito añade puntos de interés (agua, refugios, comida, miradores, cajeros…)
                a tu ruta. Sube un archivo GPX, elige qué buscar y un radio alrededor del
-               recorrido, y la app coloca esos puntos sobre el mapa. También puedes añadir
+               recorrido, y la app coloca esos puntos sobre el mapa. Si no tienes ruta,
+               elige «Punto en el mapa» y busca en un radio alrededor del lugar que marques. También puedes añadir
                puntos manualmente haciendo clic directamente en el mapa. Después puedes
                descargar un GPX enriquecido con los waypoints para tu GPS o dispositivo Garmin.</p>
             <p>Los datos provienen de <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noopener">OpenStreetMap</a>
@@ -126,6 +141,6 @@
     <!-- Leaflet -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <!-- Lógica propia (sube el ?v= cada vez que edites para evitar la caché) -->
-    <script src="script.js?v=9"></script>
+    <script src="script.js?v=10"></script>
 </body>
 </html>

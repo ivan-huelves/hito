@@ -141,6 +141,12 @@ let originalXml = null;
 let trackLayer = null;
 let baseFileName = "ruta";
 
+// Modo de búsqueda: 'route' (a lo largo de un GPX) o 'point' (alrededor de un punto)
+let modo = 'route';
+let centro = null;        // L.LatLng del punto elegido
+let centroMarker = null;  // marcador del centro (arrastrable)
+let radioCircle = null;   // círculo que muestra el radio de búsqueda
+
 // ---------------------- Mapa ----------------------
 const map = L.map('map', { zoomControl: false }).setView([40.41, -3.70], 6);
 
@@ -252,21 +258,41 @@ document.getElementById('gpxFile').addEventListener('change', function (e) {
 
 // ---------------------- Búsqueda de POIs ----------------------
 async function buscarPOIs() {
-    if (!routePoints.length) {
-        setStatus("Primero sube un archivo GPX de ruta.", true);
-        return;
-    }
     const radius = parseInt(document.getElementById('radius').value, 10);
+    let bbox, estaCerca;
 
-    let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
-    routePoints.forEach(([lat, lon]) => {
-        if (lat < minLat) minLat = lat;
-        if (lat > maxLat) maxLat = lat;
-        if (lon < minLon) minLon = lon;
-        if (lon > maxLon) maxLon = lon;
-    });
-    const margin = (radius / 111000) + 0.01;
-    const bbox = `${minLat - margin},${minLon - margin},${maxLat + margin},${maxLon + margin}`;
+    if (modo === 'point') {
+        if (!centro) {
+            setStatus("Primero elige un punto en el mapa.", true);
+            return;
+        }
+        // Caja que contiene el círculo (la longitud se estrecha con la latitud)
+        const dLat = radius / 111000;
+        const dLon = radius / (111000 * Math.cos(centro.lat * Math.PI / 180));
+        bbox = `${centro.lat - dLat},${centro.lng - dLon},${centro.lat + dLat},${centro.lng + dLon}`;
+        estaCerca = (lat, lon) => getDistance(lat, lon, centro.lat, centro.lng) <= radius;
+    } else {
+        if (!routePoints.length) {
+            setStatus("Primero sube un archivo GPX de ruta.", true);
+            return;
+        }
+        let minLat = 90, maxLat = -90, minLon = 180, maxLon = -180;
+        routePoints.forEach(([lat, lon]) => {
+            if (lat < minLat) minLat = lat;
+            if (lat > maxLat) maxLat = lat;
+            if (lon < minLon) minLon = lon;
+            if (lon > maxLon) maxLon = lon;
+        });
+        const margin = (radius / 111000) + 0.01;
+        bbox = `${minLat - margin},${minLon - margin},${maxLat + margin},${maxLon + margin}`;
+        const step = Math.max(1, Math.floor(routePoints.length / 400));
+        estaCerca = (lat, lon) => {
+            for (let i = 0; i < routePoints.length; i += step) {
+                if (getDistance(lat, lon, routePoints[i][0], routePoints[i][1]) <= radius) return true;
+            }
+            return false;
+        };
+    }
 
     let filtros = "";
     Object.keys(FILTERS).forEach(id => {
@@ -282,7 +308,9 @@ async function buscarPOIs() {
 
     let data = null;
     for (const url of OVERPASS_SERVERS) {
-        setStatus("Escaneando la ruta… (puede tardar unos segundos)");
+        setStatus(modo === 'point'
+            ? "Buscando en la zona… (puede tardar unos segundos)"
+            : "Escaneando la ruta… (puede tardar unos segundos)");
         try {
             const res = await fetch(url, {
                 method: "POST",
@@ -325,16 +353,7 @@ async function buscarPOIs() {
         const lat = el.lat || (el.center && el.center.lat);
         const lon = el.lon || (el.center && el.center.lon);
         if (!lat || !lon) return;
-
-        let isNear = false;
-        const step = Math.max(1, Math.floor(routePoints.length / 400));
-        for (let i = 0; i < routePoints.length; i += step) {
-            if (getDistance(lat, lon, routePoints[i][0], routePoints[i][1]) <= radius) {
-                isNear = true;
-                break;
-            }
-        }
-        if (!isNear) return;
+        if (!estaCerca(lat, lon)) return;
 
         const tags = el.tags || {};
         if (tags.disused === "yes" || tags.abandoned === "yes" ||
@@ -393,15 +412,17 @@ function descargarGPX() {
         `<wpt lat="${p.lat}" lon="${p.lon}"><name>${escapeXml(p.nombre)}</name><sym>${p.sym}</sym></wpt>`
     ).join("");
 
-    const base = originalXml && originalXml.includes('</gpx>')
+    // En modo ruta se añaden los puntos al GPX original; en modo punto se crea uno solo con waypoints.
+    const usarRuta = modo === 'route' && originalXml && originalXml.includes('</gpx>');
+    const base = usarRuta
         ? originalXml
-        : `<?xml version="1.0"?><gpx version="1.1"></gpx>`;
+        : `<?xml version="1.0" encoding="UTF-8"?>\n<gpx version="1.1" creator="Hito" xmlns="http://www.topografix.com/GPX/1/1"></gpx>`;
     const finalContent = base.replace('</gpx>', waypoints + '\n</gpx>');
 
     const blob = new Blob([finalContent], { type: 'application/gpx+xml' });
     const a = document.createElement('a');
     a.href = URL.createObjectURL(blob);
-    a.download = `${baseFileName}_con_pois.gpx`;
+    a.download = usarRuta ? `${baseFileName}_con_pois.gpx` : `hito_puntos_zona.gpx`;
     a.click();
     URL.revokeObjectURL(a.href);
 }
@@ -467,26 +488,119 @@ const opcionesTipo =
     }).join("") +
     `<option value="otro">📍 Otro</option>`;
 
-function setModoAnadir(activo) {
-    modoAnadir = activo;
-    btnAdd.classList.toggle('active', activo);
+// Muestra u oculta la barra superior con un texto concreto.
+// En móvil: al activar se cierra el menú (para ver el mapa); al salir con "Listo" se reabre.
+function setBarraMapa(activo, texto) {
+    if (texto) document.getElementById('editBarText').textContent = texto;
     mapEl.classList.toggle('crosshair', activo);
     editBar.classList.toggle('show', activo);
     document.body.classList.toggle('edit-mode', activo);
-    if (!activo) map.closePopup();
-
-    // En móvil: al activar se cierra el menú (para ver el mapa);
-    // al salir con "Listo" se vuelve a abrir (para descargar sin buscar el botón).
     if (window.matchMedia('(max-width: 768px)').matches) {
         if (activo) cerrarMenu();
         else abrirMenu();
     }
 }
 
+function setModoAnadir(activo) {
+    if (activo && modoElegir) setModoElegir(false, true);
+    modoAnadir = activo;
+    btnAdd.classList.toggle('active', activo);
+    if (!activo) map.closePopup();
+    setBarraMapa(activo, 'Toca el mapa para añadir');
+}
+
 btnAdd.addEventListener('click', () => setModoAnadir(!modoAnadir));
-document.getElementById('editDone').addEventListener('click', () => setModoAnadir(false));
+document.getElementById('editDone').addEventListener('click', () => {
+    if (modoElegir) setModoElegir(false);
+    else setModoAnadir(false);
+});
+
+// ---------------------- Búsqueda alrededor de un punto ----------------------
+let modoElegir = false;
+const btnPickPoint = document.getElementById('btnPickPoint');
+const pointLabel = document.getElementById('pointLabel');
+
+// silencioso = true: cambia el estado sin tocar la barra (al pasar de un modo de mapa a otro)
+function setModoElegir(activo, silencioso = false) {
+    if (activo && modoAnadir) { modoAnadir = false; btnAdd.classList.remove('active'); map.closePopup(); }
+    modoElegir = activo;
+    btnPickPoint.classList.toggle('active', activo);
+    if (!silencioso) setBarraMapa(activo, 'Toca el mapa para elegir el centro');
+}
+
+btnPickPoint.addEventListener('click', () => setModoElegir(!modoElegir));
+
+function radioActual() {
+    return parseInt(document.getElementById('radius').value, 10);
+}
+
+// Coloca (o mueve) el centro de búsqueda y su círculo de radio.
+function fijarCentro(latlng) {
+    centro = latlng;
+    if (!centroMarker) {
+        const centroIcon = L.divIcon({
+            className: 'center-icon',
+            html: '<div></div>',
+            iconSize: [22, 22],
+            iconAnchor: [11, 11]
+        });
+        centroMarker = L.marker(latlng, { icon: centroIcon, draggable: true }).addTo(map);
+        centroMarker.on('drag', e => {
+            centro = e.target.getLatLng();
+            radioCircle.setLatLng(centro);
+        });
+        centroMarker.on('dragend', () => actualizarEtiquetaPunto());
+        radioCircle = L.circle(latlng, {
+            radius: radioActual(),
+            color: '#000000', weight: 1.5, dashArray: '6 6',
+            fillColor: '#000000', fillOpacity: 0.06
+        }).addTo(map);
+    } else {
+        centroMarker.setLatLng(latlng);
+        radioCircle.setLatLng(latlng);
+    }
+    // Si se está viendo el mapa muy alejado, acerca para que el círculo sea visible.
+    if (map.getZoom() < 10) map.fitBounds(radioCircle.getBounds(), { padding: [40, 40] });
+    actualizarEtiquetaPunto();
+}
+
+function actualizarEtiquetaPunto() {
+    if (!centro) return;
+    pointLabel.textContent = `${centro.lat.toFixed(4)}, ${centro.lng.toFixed(4)} · arrastra el pin para moverlo`;
+    pointLabel.classList.add('set');
+}
+
+// El círculo sigue al selector de radio.
+document.getElementById('radius').addEventListener('change', () => {
+    if (radioCircle) radioCircle.setRadius(radioActual());
+});
+
+// Cambio entre "Ruta GPX" y "Punto en el mapa".
+function setModo(nuevo) {
+    modo = nuevo;
+    const esPunto = nuevo === 'point';
+    document.getElementById('modeRoute').classList.toggle('active', !esPunto);
+    document.getElementById('modePoint').classList.toggle('active', esPunto);
+    document.getElementById('modeRoute').setAttribute('aria-selected', String(!esPunto));
+    document.getElementById('modePoint').setAttribute('aria-selected', String(esPunto));
+    document.getElementById('panelRoute').hidden = esPunto;
+    document.getElementById('panelPoint').hidden = !esPunto;
+
+    // Cada modo muestra solo su geometría: la ruta o el círculo.
+    if (trackLayer) esPunto ? map.removeLayer(trackLayer) : trackLayer.addTo(map);
+    if (centroMarker) {
+        esPunto ? centroMarker.addTo(map) : map.removeLayer(centroMarker);
+        esPunto ? radioCircle.addTo(map) : map.removeLayer(radioCircle);
+    }
+    if (!esPunto && modoElegir) setModoElegir(false);
+    setStatus("");
+}
+
+document.getElementById('modeRoute').addEventListener('click', () => setModo('route'));
+document.getElementById('modePoint').addEventListener('click', () => setModo('point'));
 
 map.on('click', e => {
+    if (modoElegir) { fijarCentro(e.latlng); return; }
     if (!modoAnadir) return;
     clickLatLng = e.latlng;
     const form =
